@@ -148,7 +148,30 @@ class European_Options():
         return Value
     
 
+class ValueAmerican():
+    def __init__(self,n,N,Assetprice,time,v,f,) :
+        self.S = Assetprice
+        self.t = time
+        self.v = v # Soll funktion ein, die value der option berechnet(Input nur Raum Variable!!!)
+        self.f = f
+        self.n = n
+        self.N = N
+        self.tau = np.zeros(shape=(N, n)) # Speichert ausuebungsstrategier (Letzte Spalte == 1 beduetet pfad in the money)
+        self.C = np.zeros(shape=(self.N,self.n))
+        
+    def get_Cashflows(self,time):
+        """Computes Cashflow of option with value function v at time point 'time'
 
+        Args:
+            time (_type_): _description_
+        """
+        for j in range(self.N):
+            self.C[j,time] = self.v(self.S[j,time])
+            
+    def OLS_MC(self):
+        pass
+
+      
 
 # Monte Carlo Methods:
 class Monte_Carlo():
