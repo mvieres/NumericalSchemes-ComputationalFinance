@@ -82,7 +82,7 @@ class European_Options():
         self.t = t
     
     def Arithmetic_asian_call(self,discounted):
-        """Computes an UNDISCOUNTED European Arithmetic asian Call given the underlying asset S and strike price K
+        """Computes an European Arithmetic asian Call given the underlying asset S and strike price K
 
         Returns:
             Vector / Array: Value of the option
@@ -112,6 +112,9 @@ class European_Options():
                 Value[j] = np.max(0, self.S[j,-1] - self.K)
         return Value
 
+    
+    def Put_theory(self,r,sigma):
+        pass
         
     def Put(self,discounted):
         """Computes Standard European Put Option Value at Maturity T for each Sample path (N paths in total).
