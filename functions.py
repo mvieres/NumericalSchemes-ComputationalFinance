@@ -4,7 +4,7 @@ from scipy.linalg import lu
 import scipy as sc
 
 class Market():
-    """ Creats the market environment.
+    """ Creates the market environment.
         Works for Models driven by a 1-dimensional Brownian Motion.
     """
     def __init__(self,n,N,sigma,r,s0,T):
@@ -19,7 +19,7 @@ class Market():
         """Computes #N Sample paths of brownian motion
 
         Args:
-            n (int): total number of gridpoints --> look time_grid()
+            n (int): total number of grid points --> look time_grid()
             N (int): total Number of Samples drawn
         """
         t = self.time_grid()
@@ -30,11 +30,11 @@ class Market():
         return B
     
     def black_scholes(self):
-        """ Creats the Black Scholes Model using the closed Formula
+        """ Creates the Black Scholes Model using the closed Formula
             S(t) = s_0* exp( (r - 0.5*sigma^2)*t + sigma*W_t)
 
         Returns:
-            S (Matrix / Array): Assetprice (row -> Samples, columns -> timepoints)
+            S (Matrix / Array): Assetprice (row -> Samples, columns -> time points)
         """
         t = self.time_grid()
         BB = self.brownian_motion()
@@ -45,11 +45,11 @@ class Market():
         return S
     
     def bs_phi(self,t,x):
-        """performs transformation for time variable t and space Variable x
-
+        """performs transformation for time variable t and space Variable x of Geometric brownian Motion
+            --> Primarily used for Antithetic Monte Carlo Estimation of Geometric Asian Call
         Args:
-            t (_type_): _description_
-            x (_type_): _description_
+            t (float): time point
+            x (float): space point
         """
         return self.s0*np.exp((self.r - 0.5*self.sigma**2)*t + self.sigma*x)
     
@@ -57,21 +57,32 @@ class Market():
         """Creats a time grid given Time Horizon T and total number of points n.
 
         Returns:
-            Vector / array: timepoints
+            Vector / array: time points
         """
         time = np.linspace(0,self.T,self.n)
         return time
 
 
 class European_Options():
-    def __init__(self,n,N,K,Assetprice):
+    def __init__(self,n,N,K,Assetprice,t):
+        """Initialize European Option Class. 
+        Goal: Summarize all common European Options within one class for better calling / comparing.
+
+        Args:
+            n (Int): Number of time grid points
+            N (Int): Number of samples
+            K (float): Strike Price (K>0)
+            Assetprice (Array): Matrix of Asset prices (axis = 1), Different samples in each row (axis = 0)
+            t (Array): time grid
+        """
         self.K = K
         self.N = N
         self.n = n
         self.S = Assetprice
+        self.t = t
     
     def Arithmetic_asian_call(self):
-        """Computes an European Arithmetic asian Call given the underlying asset S and strike price K
+        """Computes an UNDISCOUNTED European Arithmetic asian Call given the underlying asset S and strike price K
 
         Returns:
             Vector / Array: Value of the option
@@ -81,21 +92,43 @@ class European_Options():
            Value[j] = np.max((1/self.n)* np.sum(self.S[j,:]) - self.K , 0) 
         return Value
     
-    def Call(self):
-        """ Standard European Call at maturity T (end point)
-        
-        """
-        Value = np.zeros(shape = (self.N,))
-        for j in range(self.N):
-           Value[j] = np.max(0, self.S[j,-1] - self.K)
-        return Value
-        
-    
-    def geo_asian_call(self):
-        """Computes an European geometric asian call given the underlying asset S and strike price K
+    def Call(self,discounted):
+        """Computes Standard European Call Option Value at Maturity T for each Sample path (N paths in total).
 
         Returns:
-            _Array: Value of option
+            Array: Value for each sample path
+        """
+        Value = np.zeros(shape = (self.N,))
+
+        if discounted == True:
+            for j in range(self.N):
+                Value[j] = np.exp(-self.r*(t[-1] -t[0]))*np.max(0, self.S[j,-1] - self.K)
+        else:
+            for j in range(self.N):
+                Value[j] = np.max(0, self.S[j,-1] - self.K)
+        return Value
+
+        
+    def Put(self,discounted):
+        """Computes Standard European Put Option Value at Maturity T for each Sample path (N paths in total).
+
+        Returns:
+            Array: Value for each sample path
+        """
+        Value = np.zeros(shape = (self.N,))
+        if discounted == True:
+            for j in range(self.N):
+                Value[j] = np.exp(-self.r*(t[-1] -t[0]))*np.max(0,  self.K - self.S[j,-1])
+        else:
+            for j in range(self.N):
+                Value[j] = np.max(0,  self.K - self.S[j,-1])
+        return Value
+    
+    def geo_asian_call(self):
+        """Computes an UNDISCOUNTED European geometric asian call given the underlying asset S and strike price K
+
+        Returns:
+            Array: Value of option
         """
         Value = np.zeros(shape=(self.N,))
         for j in range(self.N):
@@ -106,8 +139,8 @@ class European_Options():
 
 # Monte Carlo Methods:
 class Monte_Carlo():
-    """ Class to perfom different Monte Carlo Estimation for financial options
-        TODO: Dependencies within init are inconsitent --> Move all non essential (global) variables for each estimator to its respective function
+    """ Class to perform different Monte Carlo Estimation for financial options
+        TODO: Dependencies within init are inconsistent --> Move all non essential (global) variables for each estimator to its respective function
     """
     def __init__(self,N,rv, alpha,r, T,K):
         self.N = N
@@ -119,8 +152,8 @@ class Monte_Carlo():
         
         
     def Standard_MC(self):
-        """Performes standard Monte Carlo Estimation given N samples of a random variable
-            Attantion: SMC is 'discounted' with exp(-r*T).
+        """Performs standard Monte Carlo Estimation given N samples of a random variable
+            Attention: SMC is 'discounted' with exp(-r*T).
         Returns:
             Float: estimated expected value
             Float: Variance of the estimator
@@ -135,12 +168,12 @@ class Monte_Carlo():
         return p_mc, var_mc, ki
     
     def SMC(self):
-        """Performes standard Monte Carlo Estimation given N samples of a random variable
-        
+        """Performs standard Monte Carlo Estimation given N samples of a random variable
+
         Returns:
-            Float: estimated expected value
-            Float: Variance of the estimator
-            Array: Confidence Interval
+            p_mc (float): Estimated Monte Carlo Value
+            var_mc (float): Estimated Monte Carlo Variance of p_mc
+            ki (Array): Confidence Interval
         """
         p_mc = np.mean(self.ov)
         var_mc = np.var(self.ov)
