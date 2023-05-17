@@ -1,6 +1,5 @@
 import numpy as np  
 import random as ran
-from scipy.linalg import lu
 import scipy as sc
 
 class Market():
