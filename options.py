@@ -1,7 +1,7 @@
 import numpy as np
 
 
-class Value_functions():
+class European():
     def __init__(self,n,N,K,Assetprice,t):
         """Initialize European Option Class. 
         Goal: Summarize all common European Options within one class for better calling / comparing.
@@ -83,5 +83,27 @@ class Value_functions():
         else:
             for j in range(self.N):
                 Value[j] = np.max(0, (np.prod(self.S)**(1/self.n)) - self.K) 
+        return Value
+    
+    
+    
+    
+    
+class value_fun():
+    def __init__(self,t,x):
+        self.t = t
+        self.x = x
+        self.dim = len(x)
+    
+    def Call(self,K):
+        Value = np.zeros(shape=(self.dim,))
+        for j in range(self.dim):
+            Value[j] = np.maximum(0, self.x[j] - K)
+        return Value
+    
+    def Put(self,K):
+        Value = np.zeros(shape=(self.dim,))
+        for j in range(self.dim):
+            Value[j] = np.maximum(0, K - self.x[j])
         return Value
     

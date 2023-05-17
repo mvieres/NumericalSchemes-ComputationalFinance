@@ -1,6 +1,7 @@
 import numpy as np
 import matplotlib.pyplot as plt
-from functions import Market, MeanReturn
+from market import Market
+from options import Value_functions
 
 
 T=1 # Time horizon
@@ -17,8 +18,6 @@ t = M.time_grid()
 BB = M.brownian_motion()
 Stock = M.black_scholes()
 
-test = MeanReturn(Stock)
-print(test)
 for i in range(N):
     plt.plot(t,Stock[i,:])
 plt.legend()
