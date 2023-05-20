@@ -108,15 +108,13 @@ class value_fun_t_x():
         return Value
 
 class value_fun_x():
-    def __init__(self):
+    """Single input value only!!!!!
+    """
+    def __init__(self) -> None:
         pass
     
-    def Call(self,x,K):
-        len_x = len(x)
-        Value = np.zeros(shape=(len_x,))
-        for j in range(len_x):
-            Value[j] = np.maximum(0, x[j] - K)
-        return Value
+    def Call(self,x,K):   
+        return np.maximum(0, x - K)
     
     def Put(self,x,K):
         len_x = len(x)
