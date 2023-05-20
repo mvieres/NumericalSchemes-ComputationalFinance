@@ -1,59 +1,60 @@
 import numpy as np
 
-from market import Market
 from options import value_fun_x as vfun
 
 
-# Aufpassen wie v supplied wird --> aktuell from 
-
-
 #
-def LSM(Market,v,degree):
+def LSM(Market,degree):
 
     Stock = Market.black_scholes()
     t = Market.time_grid()
-    m = len(Stock, axis = 1)
-    n = len(t)
+    m = Market.N
+    n = Market.n
     r = Market.r
+    
     delta_t = t[-1] - t[-2]
     C = np.zeros(shape=(m,n))
     S = np.zeros(shape=(m,n))
     
     for j in range(m):
-        if vfun.Call(Stock[j,n]):
-            S[j,n] = 1
+        if vfun().Call(x = Stock[j,n-1]):
+            S[j,n-1] = 1
     
     for j in range(m):
-        C[j,n] = vfun.Call(Stock[j,n])
+        C[j,n-1] = vfun().Call(x= Stock[j,n-1])
     
     
-    for j in range(m, 2, -1):
+    for j in range(n, 2, -1):
         U = np.zeros(shape=(m,))
-        z = 1
+        z = 0 
         Xtemp = np.array([])
         Ytemp = np.array([])
         for i in range(m):
-            if vfun.Call(Stock[i,j-1]) > 0:
+            if vfun().Call(x = Stock[i,j-1]) > 0:
                 U[i] = 1
-                val = np.array(np.sum([C[i,k]+np.exp(-r*(t[k+1]-t[k])) for k in range(j,n+1)]))
+                val = np.array(np.sum([C[i,k]+np.exp(-r*(t[k+1]-t[k])) for k in range(j,n-1)]))
                 Ytemp = np.append(Ytemp, val)
                 Xtemp = np.append(Xtemp, Stock[i,j-1])
+                z = z + 1
+    
+
     X = Xtemp
     Y = Ytemp
     regression = np.polyfit(X,Y,degree)
     Xcont = np.polyval(regression, Stock[:,j])
-    Xex = np.array([vfun.Call(X[_]) for _ in range(X)])
+    Xex = np.array([vfun().Call(x = X[_]) for _ in range(len(X))])
     
-    z = 0
+    z = 0 # Nicht klar wo dieses Init hingehoert
     for i in range(m):
-        if U[i] == 1:
+        
+        if U[i] == 1: # Checkin for in the money path
             if Xex[z] < Xcont[z]:
                 for k in range(j,n): # n Evnetuell falsch
-                    C[i,k] = S[i,k]*vfun.Call(Stock[i,k])
+                    C[i,k] = S[i,k]*vfun().Call(x = Stock[i,k])
             else:
                 S[i, j-1] = 1
                 S[i, j in range(n)] = 0
-                C[i, j-1] = vfun.Call(Stock[i,j-1])# U.u viele indexfehler
+                C[i, j-1] = vfun().Call(x = Stock[i,j-1])# U.u viele indexfehler
                 C[i, j in range(n)] = 0
         z = z+1
     

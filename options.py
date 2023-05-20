@@ -113,7 +113,8 @@ class value_fun_x():
     def __init__(self) -> None:
         pass
     
-    def Call(self,x,K):   
+    def Call(self,x): 
+        K = 1  
         return np.maximum(0, x - K)
     
     def Put(self,x,K):
