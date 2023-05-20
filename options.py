@@ -89,7 +89,7 @@ class European():
     
     
     
-class value_fun():
+class value_fun_t_x():
     def __init__(self,t,x):
         self.t = t
         self.x = x
@@ -106,4 +106,21 @@ class value_fun():
         for j in range(self.dim):
             Value[j] = np.maximum(0, K - self.x[j])
         return Value
+
+class value_fun_x():
+    def __init__(self):
+        pass
     
+    def Call(self,x,K):
+        len_x = len(x)
+        Value = np.zeros(shape=(len_x,))
+        for j in range(len_x):
+            Value[j] = np.maximum(0, x[j] - K)
+        return Value
+    
+    def Put(self,x,K):
+        len_x = len(x)
+        Value = np.zeros(shape=(len_x,))
+        for j in range(len_x):
+            Value[j] = np.maximum(0, K - x[j])
+        return Value
