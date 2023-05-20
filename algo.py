@@ -3,12 +3,13 @@ import numpy as np
 from market import Market
 from options import value_fun
 
-def LSM(Market,v):
-    
+def LSM(Market,v,degree):
+
     Stock = Market.black_scholes()
     t = Market.time_grid()
     m = len(Stock, axis = 1)
     n = len(t)
+    r = Market.r
     
     C = np.zeros(shape=(m,n))
     S = np.zeros(shape=(m,n))
@@ -26,5 +27,28 @@ def LSM(Market,v):
         z = 1
         Xtemp = np.array([])
         Ytemp = np.array([])
-        
+        for i in range(m):
+            if v(Stock[i,j-1]) > 0:
+                U[i] = 1
+                val = np.array(np.sum([C[i,k]+np.exp(-r*(t[k+1]-t[k])) for k in range(j,n+1)]))
+                Ytemp = np.append(Ytemp, val)
+                Xtemp = np.append(Xtemp, Stock[i,j-1])
+    X = Xtemp
+    Y = Ytemp
+    regression = np.polyfit(X,Y,degree)
+    Xcont = np.polyval(regression, Stock[:,j])
+    Xex = np.array([v(X[_]) for _ in range(X)])
     
+    z = 0
+    for i in range(m):
+        if U[i] == 1:
+            if Xex[z] < Xcont[z]:
+                for k in range(j,n): # n Evnetuell falsch
+                    C[i,k] = S[i,k]*v(Stock[i,k])
+            else:
+                S[i, j-1] = 1
+                S[i, j in range(n)] = 0
+                C[i, j-1] = v(Stock[i,j-1])# U.u viele indexfehler
+                C[i, j in range(n)] = 0
+        z = z+1
+        
