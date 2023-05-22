@@ -118,8 +118,4 @@ class value_fun_x():
         return np.maximum(0, x - K)
     
     def Put(self,x,K):
-        len_x = len(x)
-        Value = np.zeros(shape=(len_x,))
-        for j in range(len_x):
-            Value[j] = np.maximum(0, K - x[j])
-        return Value
+        return np.maximum(0, K - x)
