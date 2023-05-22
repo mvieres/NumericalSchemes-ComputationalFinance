@@ -1,5 +1,5 @@
 import numpy as np
-
+import pandas as pandas
 
 class European():
     def __init__(self,n,N,K,Assetprice,t):

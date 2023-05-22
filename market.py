@@ -12,6 +12,8 @@ class Market():
         self.s0 = s0
         self.T = T
         
+   
+        
     def brownian_motion(self):
         """Computes #N Sample paths of brownian motion
 
@@ -19,6 +21,9 @@ class Market():
             n (int): total number of grid points --> look time_grid()
             N (int): total Number of Samples drawn
         """
+
+        #np.random.seed(42)
+        
         t = self.time_grid()
         delta_t = t[1] - t[0]
         dB = np.sqrt(delta_t) * np.random.normal(size=(self.N,self.n - 1))

@@ -65,3 +65,70 @@ def LSM(Market,degree,K):
     #TODO: Strategy
     return Value, S, C
         
+
+
+def Call(x,K): 
+        
+    return np.maximum(0, x - K)
+    
+def Put(x,K):
+    return np.maximum(0, K - x)
+
+
+def longstaff_schwartz(Market, degree, K):
+    """Performs the Least squares Monte Carlo Estimation for American Put(!!) Options. Uses Black Scholes Model as underlying Market Model
+
+    Args:
+        Market (Array): on axis 0: Sample paths, on axis 1 values at each time point for a given Samplepatz
+        degree (int): Maximum polynomial degree to be considered for regression
+        K (float): strike price
+    Returns:
+        float: Estimated value of american Option
+    """
+    
+    # Extracting t, S from Market environment
+    t = Market.time_grid()
+    S = Market.black_scholes()
+    r = Market.r
+    
+    #
+    delta_t = t[1] - t[0]
+    num_steps = t.shape[0] # Number of time steps (soldimensions)
+    num_mc = S.shape[0] # Number of monte carlo runs (rowdimensions)
+    
+    
+    discont = np.exp(-r*delta_t) # Constant discount factor, because grid is equidistant
+   
+    # Preallocation Continuation Value, i.e Z_{\tau_{j+1}}
+    contin_val = np.zeros_like(S)
+    
+    # Allocate last time point, i.e. Exercise value of Option
+    for j in range(num_mc):
+        contin_val[j,-1] = Put(S[j,-1],K=K)
+    
+    # Iteration backwards in Time
+    for t in range(num_steps - 2, 1, -1):
+        reg = np.polyfit(S[:,t], contin_val[:,t+1]*discont, deg=degree)
+        contin_val[:,t] = np.polyval(reg,S[:,t])
+        
+        # Exercise value
+        ex_val = np.zeros_like(S[:,t])
+        for j in range(num_mc):
+            ex_val[j] = Put(S[j,t],K=K)
+        
+        ex_itm = np.where(ex_val > contin_val[:,t])[0] # Comparing exercise and continuation value
+        
+        # Update Continuation value
+        for j in ex_itm:
+            contin_val[j,t] = Put(S[j,t],K=K)
+            contin_val[j, t+1] = 0
+        
+        # Standard Monte Carlo 
+        value = np.mean(np.sum(contin_val*discont,axis = 1))
+        
+    return value
+        
+
+        
+        
+    
