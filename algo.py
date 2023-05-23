@@ -100,33 +100,35 @@ def longstaff_schwartz(Market, degree, K):
     discont = np.exp(-r*delta_t) # Constant discount factor, because grid is equidistant
    
     # Preallocation Continuation Value, i.e Z_{\tau_{j+1}}
-    contin_val = np.zeros_like(S)
-    
+    #contin_val = np.zeros_like(S)
+    value = np.zeros_like(S)
     # Allocate last time point, i.e. Exercise value of Option
     for j in range(num_mc):
-        contin_val[j,-1] = Put(S[j,-1],K=K)
+        value[j,-1] = Put(S[j,-1],K=K)
     
     # Iteration backwards in Time
-    for t in range(num_steps - 2, 1, -1):
-        reg = np.polyfit(S[:,t], contin_val[:,t+1]*discont, deg=degree)
-        contin_val[:,t] = np.polyval(reg,S[:,t])
+    for t in range(num_steps - 2, -1, -1):
+        reg = np.polyfit(S[:,t], value[:,t+1]*discont, deg=degree)
+        contin_val = np.polyval(reg,S[:,t])
         
         # Exercise value
         ex_val = np.zeros_like(S[:,t])
         for j in range(num_mc):
             ex_val[j] = Put(S[j,t],K=K)
         
-        ex_itm = np.where(ex_val > contin_val[:,t])[0] # Comparing exercise and continuation value
-        
-        # Update Continuation value
-        for j in ex_itm:
-            contin_val[j,t] = Put(S[j,t],K=K)
-            contin_val[j, t+1] = 0
+        for j in range(num_mc):
+            if ex_val[j] >= contin_val[j]:
+                value[j,t] = Put(S[j,t],K=K)
+            else:
+                value[j,t] = value[j,t+1]
         
         # Standard Monte Carlo 
-        value = np.mean(np.sum(contin_val*discont,axis = 1))
-        
-    return value
+        v_0 = value[:,0]*discont
+        value_0 = np.mean(v_0)
+        sd = np.std(v_0)
+        ci = 1.96 * np.std(v_0)/np.sqrt(num_mc)
+
+    return value_0, sd, ci
         
 
         

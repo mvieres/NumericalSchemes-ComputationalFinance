@@ -2,7 +2,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 from market import Market
-from algo import LSM, longstaff_schwartz
+from algo import longstaff_schwartz
 
 
 T = 1
@@ -20,5 +20,6 @@ M = Market(n=n,N=N,sigma=sigma,r=r,s0=s0,T=T)
 t = M.time_grid()
 BB = M.brownian_motion()
 Stock = M.black_scholes()
-Value = longstaff_schwartz(Market= M,degree = degree,K = 45) 
+Value, sd, ci = longstaff_schwartz(Market= M,degree = degree,K = 36) 
 print(Value)
+print(sd)
