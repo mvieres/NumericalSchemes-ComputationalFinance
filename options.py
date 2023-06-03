@@ -1,8 +1,8 @@
 import numpy as np
-import pandas as pandas
+
 
 class European():
-    def __init__(self,n,N,K,Assetprice,t):
+    def __init__(self,n,N,K,Assetprice,t,r):
         """Initialize European Option Class. 
         Goal: Summarize all common European Options within one class for better calling / comparing.
 
@@ -18,6 +18,7 @@ class European():
         self.n = n
         self.S = Assetprice
         self.t = t
+        self.r = r
     
     def Arithmetic_asian_call(self,discounted):
         """Computes an European Arithmetic asian Call given the underlying asset S and strike price K

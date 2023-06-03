@@ -2,14 +2,14 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 from market import Market
-from algo import longstaff_schwartz
+from algo import longstaff_schwartz, LSM
 
 
 T = 1
 N = 1000
 n = 100
 
-degree = 3
+degree = 5
 
 r = 0.06
 sigma = 0.2
@@ -31,6 +31,7 @@ z= 0
 for k in K:
     print(k)
     res_value[z], sd[z], ci[z] = longstaff_schwartz(Market= M,degree = degree,K = k)
+    #res_value[z] = LSM(Market=M,degree=degree,K=k)
     z = z+1
 
 plt.plot(K,res_value)

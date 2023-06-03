@@ -90,6 +90,7 @@ def longstaff_schwartz(Market, degree, K):
     t = Market.time_grid()
     S = Market.black_scholes()
     r = Market.r
+    N = Market.N
     
     #
     delta_t = t[1] - t[0]
@@ -104,7 +105,7 @@ def longstaff_schwartz(Market, degree, K):
     value = np.zeros_like(S)
     # Allocate last time point, i.e. Exercise value of Option
     for j in range(num_mc):
-        value[j,-1] = Put(S[j,-1],K=K)
+        value[j,-1] = Call(S[j,-1],K=K)
     
     # Iteration backwards in Time
     for t in range(num_steps - 2, -1, -1):
@@ -114,21 +115,23 @@ def longstaff_schwartz(Market, degree, K):
         # Exercise value
         ex_val = np.zeros_like(S[:,t])
         for j in range(num_mc):
-            ex_val[j] = Put(S[j,t],K=K)
+            ex_val[j] = Call(S[j,t],K=K)
         
         for j in range(num_mc):
             if ex_val[j] >= contin_val[j]:
-                value[j,t] = Put(S[j,t],K=K)
+                value[j,t] = Call(S[j,t],K=K)
             else:
                 value[j,t] = value[j,t+1]
         
         # Standard Monte Carlo 
         v_0 = value[:,0]*discont
         value_0 = np.mean(v_0)
-        sd = np.std(v_0)
-        ci = 1.96 * np.std(v_0)/np.sqrt(num_mc)
+        v0_var = np.var(v_0)
+        v0_sd = np.sqrt(v0_var)
+        #ci = 1.96 * v0_sd/np.sqrt(num_mc)
+        var_mc = v0_var/N
 
-    return value_0, sd, ci
+    return value_0, var_mc
         
 
         
