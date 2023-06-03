@@ -30,7 +30,7 @@ var = np.zeros_like(K)
 z= 0 
 for k in K:
     print(k)
-    res_value[z], var[z] = longstaff_schwartz(Market= M,degree = degree,K = k)
+    res_value[z], var[z] = longstaff_schwartz(Market= M,degree = degree,K = k,payoff = "Call")
     #res_value[z] = LSM(Market=M,degree=degree,K=k)
     z = z+1
 

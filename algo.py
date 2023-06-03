@@ -67,21 +67,21 @@ def LSM(Market,degree,K):
         
 
 
-def Call(x,K): 
-        
+def Call(x,K):      
     return np.maximum(0, x - K)
     
 def Put(x,K):
     return np.maximum(0, K - x)
 
 
-def longstaff_schwartz(Market, degree, K):
+def longstaff_schwartz(Market, degree, K,payoff):
     """Performs the Least squares Monte Carlo Estimation for American Put(!!) Options. Uses Black Scholes Model as underlying Market Model
 
     Args:
         Market (Array): on axis 0: Sample paths, on axis 1 values at each time point for a given Samplepatz
         degree (int): Maximum polynomial degree to be considered for regression
         K (float): strike price
+        payoff (function): Payoff function of Option
     Returns:
         float: Estimated value of american Option
     """
@@ -91,6 +91,14 @@ def longstaff_schwartz(Market, degree, K):
     S = Market.black_scholes()
     r = Market.r
     N = Market.N
+    if payoff.lower() == "call":
+        g = lambda a: Call(a,K)
+    elif payoff.lower() == "put":
+        g = lambda a: Put(a,K)
+    else:
+        print("No valid Option chosen")
+        return
+
     
     #
     delta_t = t[1] - t[0]
@@ -105,7 +113,7 @@ def longstaff_schwartz(Market, degree, K):
     value = np.zeros_like(S)
     # Allocate last time point, i.e. Exercise value of Option
     for j in range(num_mc):
-        value[j,-1] = Call(S[j,-1],K=K)
+        value[j,-1] = g(S[j,-1])
     
     # Iteration backwards in Time
     for t in range(num_steps - 2, -1, -1):
@@ -115,11 +123,11 @@ def longstaff_schwartz(Market, degree, K):
         # Exercise value
         ex_val = np.zeros_like(S[:,t])
         for j in range(num_mc):
-            ex_val[j] = Call(S[j,t],K=K)
+            ex_val[j] = g(S[j,t])
         
         for j in range(num_mc):
             if ex_val[j] >= contin_val[j]:
-                value[j,t] = Call(S[j,t],K=K)
+                value[j,t] = g(S[j,t])
             else:
                 value[j,t] = value[j,t+1]
         
