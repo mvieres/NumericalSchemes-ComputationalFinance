@@ -25,19 +25,18 @@ Stock = M.black_scholes()
  
 K = np.linspace(1,100,100)
 res_value = np.zeros_like(K)  
-sd = np.zeros_like(K)
-ci = np.zeros_like(K)
+var = np.zeros_like(K)
+
 z= 0 
 for k in K:
     print(k)
-    res_value[z], sd[z], ci[z] = longstaff_schwartz(Market= M,degree = degree,K = k)
+    res_value[z], var[z] = longstaff_schwartz(Market= M,degree = degree,K = k)
     #res_value[z] = LSM(Market=M,degree=degree,K=k)
     z = z+1
 
 plt.plot(K,res_value)
 plt.title('LSM with 1000 MC Runs and Gridsize 100, s0 = 36')
 plt.axvline(s0,color = 'red')
-plt.fill_between(K, (res_value-ci), (res_value+ci), color='b', alpha=.1)
 plt.xlabel('Strike price K')
 plt.ylabel('Estimated v_0')
 plt.savefig('picture.png')
