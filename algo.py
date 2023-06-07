@@ -73,7 +73,7 @@ def Call(x,K):
 def Put(x,K):
     return np.maximum(0, K - x)
 def Arithmetic_Asian_Call(x,K,n):
-    return np.max((1/n)* np.sum(x - K) , 0) 
+    return np.maximum((1/n)* np.sum(x - K) , 0) 
 
 def longstaff_schwartz(Market, degree, K,payoff):
     """Performs the Least squares Monte Carlo Estimation for American Put(!!) Options. Uses Black Scholes Model as underlying Market Model
