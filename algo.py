@@ -73,6 +73,9 @@ def Call(x,K):
 def Put(x,K):
     return np.maximum(0, K - x)
 def Arithmetic_Asian_Call(x,K,n):
+    """ DOES NOT WORK WITH STANDARD MONTE CARLO
+        Due to theory of SMC Estimation
+    """
     return np.maximum((1/n)* np.sum(x - K) , 0) 
 
 def longstaff_schwartz(Market, degree, K,payoff):
