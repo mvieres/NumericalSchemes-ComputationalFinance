@@ -6,7 +6,7 @@ from algo import longstaff_schwartz, LSM
 from scipy.stats import norm
 
 T = 1
-N = 10000
+N = 1000
 n = 100
 
 
@@ -36,7 +36,7 @@ for k in K:
 
     d1 = (np.log(s0/k)+ (r + 0.5*sigma**2)*T)
     d2 = d1 - sigma*np.sqrt(T)
-    value_e = s0*norm.cdf(d1) - k*np.exp(-r)*norm.cdf(d2)
+    value_e = np.maximum(s0*norm.cdf(d1) - k*np.exp(-r)*norm.cdf(d2), 0)
     res_theory[z] = value_e
     
     #res_value[z] = LSM(Market=M,degree=degree,K=k)

@@ -1,5 +1,5 @@
 import numpy as np
-from numpy.polynomial import legendre
+
 from options import value_fun_x as vfun
 
 
@@ -67,23 +67,22 @@ def LSM(Market,degree,K):
         
 
 
-def Call(x, K):
+def Call(x,K):      
     return np.maximum(0, x - K)
     
-def Put(x, K):
+def Put(x,K):
     return np.maximum(0, K - x)
-def Arithmetic_Asian_Call(x, K, n):
-    return np.max((1/n) * np.sum(x - K), 0)
+def Arithmetic_Asian_Call(x,K,n):
+    return np.max((1/n)* np.sum(x - K) , 0) 
 
-def longstaff_schwartz(Market, degree, K, payoff, regression_type):
+def longstaff_schwartz(Market, degree, K,payoff):
     """Performs the Least squares Monte Carlo Estimation for American Put(!!) Options. Uses Black Scholes Model as underlying Market Model
 
     Args:
         Market (Array): on axis 0: Sample paths, on axis 1 values at each time point for a given Samplepatz
         degree (int): Maximum polynomial degree to be considered for regression
         K (float): strike price
-        payoff (string): Payoff function of Option
-        regression_type (string): Resgression type to be used (polyomial / legendre)
+        payoff (function): Payoff function of Option
     Returns:
         float: Estimated value of american Option
     """
@@ -96,25 +95,20 @@ def longstaff_schwartz(Market, degree, K, payoff, regression_type):
     n = Market.n
 
     if payoff.lower() == "call":
-        def g(a): return Call(a, K)
+        g = lambda a: Call(a,K)
     elif payoff.lower() == "put":
-        def g(a): return Put(a, K)
+        g = lambda a: Put(a,K)
     elif payoff.lower() == "arithmetic_asian_call":
-        def g(a): return Arithmetic_Asian_Call(a, K=K, n=n)
+        g = lambda a: Arithmetic_Asian_Call(a,K=K,n=n)
     else:
         print("No valid Option chosen")
         return
 
-    if regression_type.lower() == "legendre":
-        flag = True
-    else:
-        flag = False
-
     
     #
     delta_t = t[1] - t[0]
-    num_steps = t.shape[0]  # Number of time steps (soldimensions)
-    num_mc = S.shape[0]  # Number of monte carlo runs (rowdimensions)
+    num_steps = t.shape[0] # Number of time steps (soldimensions)
+    num_mc = S.shape[0] # Number of monte carlo runs (rowdimensions)
     
     
     discont = np.exp(-r*delta_t) # Constant discount factor, because grid is equidistant
@@ -124,30 +118,26 @@ def longstaff_schwartz(Market, degree, K, payoff, regression_type):
     value = np.zeros_like(S)
     # Allocate last time point, i.e. Exercise value of Option
     for j in range(num_mc):
-        value[j, -1] = g(S[j, -1])
+        value[j,-1] = g(S[j,-1])
     
     # Iteration backwards in Time
     for t in range(num_steps - 2, -1, -1):
-        if flag:
-            reg, _ = legendre.legfit(S[:, t], value[:, t+1]*discont, degree)
-        else:
-            reg = np.polyfit(S[:, t], value[:, t+1]*discont, deg=degree)
-
-        contin_val = np.polyval(reg, S[:, t])
+        reg = np.polyfit(S[:,t], value[:,t+1]*discont, deg=degree)
+        contin_val = np.polyval(reg,S[:,t])
         
         # Exercise value
-        ex_val = np.zeros_like(S[:, t])
+        ex_val = np.zeros_like(S[:,t])
         for j in range(num_mc):
-            ex_val[j] = g(S[j, t])
+            ex_val[j] = g(S[j,t])
         
         for j in range(num_mc):
             if ex_val[j] >= contin_val[j]:
-                value[j, t] = g(S[j, t])
+                value[j,t] = g(S[j,t])
             else:
-                value[j, t] = value[j, t+1]
+                value[j,t] = value[j,t+1]
         
         # Standard Monte Carlo 
-        v_0 = value[:, 0]*discont
+        v_0 = value[:,0]*discont
         value_0 = np.mean(v_0)
         v0_var = np.var(v_0)
         v0_sd = np.sqrt(v0_var)
