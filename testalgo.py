@@ -6,8 +6,8 @@ from algo import longstaff_schwartz
 from scipy.stats import norm
 
 T = 1
-N = 1000
-n = 100
+N = 100000
+n = 1000
 
 degree = 5
 
@@ -26,8 +26,8 @@ d1 = (np.log(s0/K)+ (r + 0.5*sigma**2)*T)
 d2 = d1 - sigma*np.sqrt(T)
 value_e = s0*norm.cdf(d1) - K*np.exp(-r)*norm.cdf(d2)
 
-Value, var = longstaff_schwartz(Market= M,degree = degree,K = 36,payoff= "Arithmetic_Asian_Call") 
+Value, var = longstaff_schwartz(Market=M, degree=degree, K=36, payoff="call", regression_type="polynomial")
 
 print('Estimated value v_0 American: ', Value)
-print('American Standard Variation: ',np.sqrt(var))
+print('American Standard Variation: ', np.sqrt(var))
 print('European Call value: ', value_e)

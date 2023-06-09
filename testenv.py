@@ -14,7 +14,7 @@ M = Market(N=N, n=n, sigma=sigma, r=r, s0=s0, T=T)
 S = M.black_scholes()
 t = M.time_grid()
 for j in range(N):
-    plt.plot(t,S[j,:])
+    plt.plot(t, S[j, :])
 
 
 
