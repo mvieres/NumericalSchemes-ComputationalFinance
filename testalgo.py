@@ -16,12 +16,7 @@ sigma = 0.2
 s0 = 36
 K = 36
 
-M = Market(n=n,N=N,sigma=sigma,r=r,s0=s0,T=T)
-
-t = M.time_grid()
-BB = M.brownian_motion()
-Stock = M.black_scholes()
-
+M = Market(n=n, N=N, sigma=sigma, r=r, s0=s0, T=T)
 d1 = (np.log(s0/K) + (r + 0.5*sigma**2)*T)
 d2 = d1 - sigma*np.sqrt(T)
 value_e = s0*norm.cdf(d1) - K*np.exp(-r)*norm.cdf(d2)
