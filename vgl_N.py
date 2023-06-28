@@ -21,9 +21,9 @@ res_value = np.zeros(shape=(len(N),))  # Result Vector for estimated value
 var = np.zeros_like(N)  # result vector for variance of estimated value
 
 z = 0
-for l in N:
-    print(l)
-    M = Market(n=n, N=l, sigma=sigma, r=r, s0=s0, T=T)
+for i in N:
+    print(i)
+    M = Market(n=n, N=i, sigma=sigma, r=r, s0=s0, T=T)
     a, b = longstaff_schwartz(Market=M, degree=degree, K=K, payoff="Call", regression_type="polynomial")
     print(a)
     res_value[z] = a
@@ -36,8 +36,8 @@ value_e = np.maximum(s0 * norm.cdf(d1) - K * np.exp(-r) * norm.cdf(d2), 0)
 diff = np.abs(res_value - value_e)
 
 # Regression
-N_res = N.reshape(-1,1)
-diff_res = diff.reshape(-1,1)
+N_res = N.reshape(-1, 1)
+diff_res = diff.reshape(-1, 1)
 lin_reg = LinearRegression()
 lin_reg.fit(N_res, diff_res)
 diff_pred = lin_reg.predict(N_res)
