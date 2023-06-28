@@ -1,92 +1,32 @@
 import numpy as np
 from numpy.polynomial import legendre
-from options import value_fun_x as vfun
 
 
-#
-def LSM(Market,degree,K):
 
-    Stock = Market.black_scholes()
-    t = Market.time_grid()
-    m = Market.N
-    n = Market.n
-    r = Market.r
-    
-    delta_t = t[-1] - t[-2]
-    C = np.zeros(shape=(m,n))
-    S = np.zeros(shape=(m,n))
-    
-    for j in range(m):
-        if vfun().Put(x = Stock[j,n-1],K=K)>0:
-            S[j,n-1] = 1
-    
-    for j in range(m):
-        C[j,n-1] = vfun().Put(x= Stock[j,n-1],K=K)
-    
-    
-    for j in range(n-1, 3, -1):
-        print(j)
-        U = np.zeros(shape=(m,))
-        z = 0 
-        Xtemp = np.array([])
-        Ytemp = np.array([])
-        for i in range(m):
-            if vfun().Put(x = Stock[i,j-1],K=K) > 0:
-                U[i] = 1
-                val = np.array(np.sum([C[i,k]+np.exp(-r*(t[k+1]-t[k])) for k in range(j,n-1)]))
-                Ytemp = np.append(Ytemp, val)
-                Xtemp = np.append(Xtemp, Stock[i,j-1])
-                z = z + 1
-    
-
-        X = Xtemp
-        Y = Ytemp
-        regression = np.polyfit(X,Y,degree)
-        Xcont = np.polyval(regression, Stock[:,j])
-        Xex = np.array([vfun().Put(x = X[_],K=K) for _ in range(len(X))])
-        
-        
-        for i in range(m):
-            
-            z = 0 # Nicht klar wo dieses Init hingehoert
-            if U[i] == 1: # Checkin for in the money path
-                if Xex[z] < Xcont[z]:
-                    for k in range(j,n): # n Evnetuell falsch
-                        C[i,k] = S[i,k]*vfun().Put(x = Stock[i,k],K=K)
-                else:
-                    S[i, j-1] = 1
-                    S[i, j in range(n)] = 0
-                    C[i, j-1] = vfun().Put(x = Stock[i,j-1],K=K)# U.u viele indexfehler
-                    C[i, j in range(n)] = 0
-            z = z+1
-    
-    # Monte Carlo (?)
-    Value = np.sum(np.sum(C*np.exp(-r+delta_t),axis=1),axis=0)/m
-    #TODO: Strategy
-    return Value, S, C
-        
-
-
-def Call(x,K):      
+def Call(x, K):
     return np.maximum(0, x - K)
-    
-def Put(x,K):
+
+
+def Put(x, K):
     return np.maximum(0, K - x)
-def Arithmetic_Asian_Call(x,K,n):
-    return np.max((1/n)* np.sum(x - K) , 0) 
+
+
+def Arithmetic_Asian_Call(x, K, n):
+    return np.max((1 / n) * np.sum(x - K), 0)
+
 
 def longstaff_schwartz(Market, degree, K, payoff, regression_type):
     """Performs the Least squares Monte Carlo Estimation for American Put(!!) Options. Uses Black Scholes Model as underlying Market Model
 
     Args:
-        Market (Array): on axis 0: Sample paths, on axis 1 values at each time point for a given Samplepatz
+        Market (Array): on axis 0: Sample paths, on axis 1 values at each time point for a given sample path
         degree (int): Maximum polynomial degree to be considered for regression
         K (float): strike price
         payoff (string): Payoff function of Option
     Returns:
         float: Estimated value of american Option
     """
-    
+
     # Extracting t, S from Market environment
     t = Market.time_grid()
     S = Market.black_scholes()
@@ -94,70 +34,61 @@ def longstaff_schwartz(Market, degree, K, payoff, regression_type):
     N = Market.N
     n = Market.n
 
+    # Processing input string of option payoff
     if payoff.lower() == "call":
-        g = lambda a: Call(a, K)
+        def g(a): return Call(a, K)
     elif payoff.lower() == "put":
-        g = lambda a: Put(a, K)
+        def g(a): return Put(a, K)
     elif payoff.lower() == "arithmetic_asian_call":
-        g = lambda a: Arithmetic_Asian_Call(a, K=K, n=n)
+        def g(a): return Arithmetic_Asian_Call(a, K=K, n=n)
     else:
         print("No valid Option chosen")
         return
 
+    # Processing Regression type and setting flag to use in for-loop
     print('Chosen Basis Polynomials: ' + regression_type)
     if regression_type.lower() == "legendre":
-
         flag = True
     else:
         flag = False
 
-    delta_t = t[1] - t[0]
-    num_steps = t.shape[0] # Number of time steps (soldimensions)
-    num_mc = S.shape[0] # Number of monte carlo runs (rowdimensions)
-    
-    
-    discont = np.exp(-r*delta_t) # Constant discount factor, because grid is equidistant
-   
-    # Preallocation Continuation Value, i.e Z_{\tau_{j+1}}
-    #contin_val = np.zeros_like(S)
-    value = np.zeros_like(S)
-    # Allocate last time point, i.e. Exercise value of Option
+    delta_t = t[1] - t[0]  # delta time
+    num_steps = t.shape[0]  # Number of time steps (col-dimensions)
+    num_mc = S.shape[0]  # Number of monte carlo runs (row-dimensions)
+
+    discount = np.exp(-r * delta_t)  # Constant discount factor for equidistant grid
+    value = np.zeros_like(S)  # Pre-allocation for value
+
+    # Compute Value for Last Time point, i.e g()
     for j in range(num_mc):
         value[j, -1] = g(S[j, -1])
-    
+
     # Iteration backwards in Time
     for t in range(num_steps - 2, -1, -1):
 
         if flag:
-            #TODO: Fix Legendre
-            reg = legendre.legfit(S[:, t], value[:, t + 1] * discont, degree)[0]
+            # TODO: Fix Legendre
+            reg = legendre.legfit(S[:, t], value[:, t + 1] * discount, degree)[0]
         else:
-            reg = np.polyfit(S[:, t], value[:, t + 1] * discont, deg=degree)
-        #TODO: ADD estimation of contin_val via neural network
+            reg = np.polyfit(S[:, t], value[:, t + 1] * discount, deg=degree)
+        # TODO: ADD estimation of contin_val via neural network
         contin_val = np.polyval(reg, S[:, t])
-        
+
         # Exercise value
         ex_val = np.zeros_like(S[:, t])
         for j in range(num_mc):
             ex_val[j] = g(S[j, t])
-        
+
         for j in range(num_mc):
             if ex_val[j] >= contin_val[j]:
                 value[j, t] = g(S[j, t])
             else:
-                value[j, t] = value[j, t+1]
-        
+                value[j, t] = value[j, t + 1]
+
         # Standard Monte Carlo 
-        v_0 = value[:, 0]*discont
+        v_0 = value[:, 0]  #* discount
         value_0 = np.mean(v_0)
         v0_var = np.var(v_0)
-        v0_sd = np.sqrt(v0_var)
-        #ci = 1.96 * v0_sd/np.sqrt(num_mc)
-        var_mc = v0_var/N
+        var_mc = v0_var / N
 
     return value_0, var_mc
-        
-
-        
-        
-    
