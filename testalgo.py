@@ -6,7 +6,7 @@ from algo import longstaff_schwartz
 from scipy.stats import norm
 
 T = 1
-N = 1000
+N = 10000
 n = 1000
 
 degree = 5
