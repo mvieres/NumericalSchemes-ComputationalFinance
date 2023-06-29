@@ -10,13 +10,13 @@ from sklearn.linear_model import LinearRegression
 # Parameters
 T = 1
 K = 36
-n = 100
+n = 1000
 degree = 4
 r = 0.06
 sigma = 0.2
 s0 = 36
 
-N = np.arange(start=100, stop=10001, step=100)  # Monte Carlo Runs
+N = np.arange(start=1000, stop=100001, step=1000)  # Monte Carlo Runs
 res_value = np.zeros(shape=(len(N),))  # Result Vector for estimated value
 var = np.zeros_like(N)  # result vector for variance of estimated value
 

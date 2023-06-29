@@ -16,15 +16,18 @@ def Arithmetic_Asian_Call(x, K, n):
 
 
 def longstaff_schwartz(Market, degree, K, payoff, regression_type):
-    """Performs the Least squares Monte Carlo Estimation for American Put(!!) Options. Uses Black Scholes Model as underlying Market Model
+    """Performs the Least squares Monte Carlo Estimation for American Put(!!) Options. Uses Black Scholes Model
 
     Args:
+        TODO: New doc
         Market (Array): on axis 0: Sample paths, on axis 1 values at each time point for a given sample path
         degree (int): Maximum polynomial degree to be considered for regression
         K (float): strike price
         payoff (string): Payoff function of Option
+        regression_type (string): Basis function to be used
     Returns:
-        float: Estimated value of american Option
+        value_0 (float): Estimated value of american Option
+        var_mc (float): Monte Carlo estimate variance
     """
 
     # Extracting t, S from Market environment
