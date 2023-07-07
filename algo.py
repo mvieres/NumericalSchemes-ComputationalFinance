@@ -54,20 +54,31 @@ def lsmc(market, degree, k, payoff, regression_type):
     # Processing Regression type and setting flag to use in for-loop
     print('Chosen Basis Polynomials: ' + regression_type)
     if regression_type.lower() == "legendre":
-        flag = True
+        flag = 1
+    elif regression_type.lower() == "laguerre":
+        flag = 2
+    elif regression_type.lower() == "polynomial":
+        flag = 3
     else:
-        flag = False
+        print('No valid regression type chosen')
+        return
 
     # Beginning of computation
     value[:, -1] = g(s[:, -1])  # Compute Value for Last Time point
     # Iteration backwards in Time
     for t in range(num_steps - 2, -1, -1):
         # Regression
-        if flag:
+        if flag == 1:
             reg = np.polynomial.legendre.legfit(s[:, t], value[:, t + 1] * discount, deg=degree)
             continuation_value = np.zeros_like(value[:, -1])
             for j in range(num_mc):
                 s_transformed_j = [ss.eval_legendre(deg, s[j, t]) for deg in range(degree+1)]
+                continuation_value[j] = np.dot(reg, s_transformed_j)
+        elif flag == 2:
+            reg = np.polynomial.laguerre.lagfit(s[:, t], value[:, t + 1] * discount, deg=degree)
+            continuation_value = np.zeros_like(value[:, -1])
+            for j in range(num_mc):
+                s_transformed_j = ss.eval_laguerre(range(degree+1), s[j, t])
                 continuation_value[j] = np.dot(reg, s_transformed_j)
         else:
             reg = np.polyfit(s[:, t], value[:, t + 1] * discount, deg=degree)
