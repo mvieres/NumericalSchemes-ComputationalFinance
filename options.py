@@ -20,14 +20,14 @@ class European:
         self.t = t
         self.r = r
     
-    def Arithmetic_asian_call(self,discounted):
+    def Arithmetic_asian_call(self, discounted):
         """Computes an European Arithmetic asian Call given the underlying asset S and strike price K
 
         Returns:
             Vector / Array: Value of the option
         """
-        Value = np.zeros(shape = (self.N,))           
-        if discounted == True:
+        Value = np.zeros(shape=(self.N,))
+        if discounted:
             for j in range(self.N):
                 Value[j] = np.exp(-self.r*(self.t[-1] -self.t[0]))*np.max((1/self.n)* np.sum(self.S[j,:]) - self.K , 0) 
         else:
@@ -35,7 +35,7 @@ class European:
                 Value[j] = np.max((1/self.n)* np.sum(self.S[j,:]) - self.K , 0) 
         return Value
     
-    def Call(self,discounted):
+    def Call(self, discounted):
         """Computes Standard European Call Option Value at Maturity T for each Sample path (N paths in total).
 
         Returns:
@@ -45,7 +45,7 @@ class European:
 
         if discounted:
             for j in range(self.N):
-                Value[j] = np.exp(-self.r*(self.t[-1] - self.t[0]))*np.max(0, self.S[j,-1] - self.K)
+                Value[j] = np.exp(-self.r*(self.t[-1] - self.t[0]))*np.max(0, self.S[j, -1] - self.K)
         else:
             for j in range(self.N):
                 Value[j] = np.max(0, self.S[j, -1] - self.K)
@@ -55,7 +55,7 @@ class European:
     def Put_theory(self, r, sigma):
         pass
         
-    def Put(self,discounted):
+    def Put(self, discounted):
         """Computes Standard European Put Option Value at Maturity T for each Sample path (N paths in total).
 
         Returns:
@@ -64,10 +64,10 @@ class European:
         Value = np.zeros(shape=(self.N,))
         if discounted:
             for j in range(self.N):
-                Value[j] = np.exp(-self.r*(self.t[-1] - self.t[0]))*np.max(0,  self.K - self.S[j,-1])
+                Value[j] = np.exp(-self.r*(self.t[-1] - self.t[0]))*np.max(0,  self.K - self.S[j, -1])
         else:
             for j in range(self.N):
-                Value[j] = np.max(0,  self.K - self.S[j,-1])
+                Value[j] = np.max(0,  self.K - self.S[j, -1])
         return Value
     
     def geo_asian_call(self, discounted):

@@ -1,5 +1,6 @@
 import numpy as np
 
+
 class Market:
     """ Creates the market environment.
         Works for Models driven by a 1-dimensional Brownian Motion.
@@ -58,4 +59,3 @@ class Market:
             for i in range(self.n):
                 s[j, i] = self.s0 * np.exp((self.r - 0.5 * (self.sigma ** 2)) * t[i] + self.sigma * bb[j, i])
         return s
-
