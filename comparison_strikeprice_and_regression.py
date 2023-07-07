@@ -25,9 +25,9 @@ results = np.zeros(shape=(len(reg)+1, len(K)))  # row-wise: different values in 
 
 for i in range(len(K)):
     print(K[i])
-    d1 = (np.log(s0 / K[i]) + (r + 0.5*sigma**2) * T)
+    d1 = (1/(sigma * np.sqrt(T)))*(np.log(s0 / K[i]) + (r + 0.5*sigma**2) * T)
     d2 = d1 - sigma * np.sqrt(T)
-    results[len(reg), i] = np.maximum(s0 * norm.cdf(d1) - K[i] * np.exp(-r) * norm.cdf(d2), 0)  # theoretical value
+    results[len(reg), i] = s0 * norm.cdf(d1) - K[i] * np.exp(-r) * norm.cdf(d2)  # theoretical value
     for j in range(len(reg)):
         results[j, i], _, _ = lsmc(market=M, degree=degree, k=K[i], payoff="Call", regression_type=reg[j])
 
