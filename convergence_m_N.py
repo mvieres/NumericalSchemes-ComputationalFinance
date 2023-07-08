@@ -14,7 +14,7 @@ K = 40
 reg = 'laguerre'
 g = 'call'
 
-N = np.arange(start=100, stop=1001, step=100)  # Array
+N = np.arange(start=100, stop=10001, step=1000)  # Array
 degree = np.arange(start=1, stop=101, step=10)  # Array
 
 result = np.zeros(shape=(len(degree), len(N)))
@@ -28,4 +28,5 @@ fig, ax = plt.subplots(subplot_kw={"projection": "3d"})
 X, Y = np.meshgrid(degree, N)
 surf = ax.plot_surface(X, Y, result_var, cmap=cm.coolwarm, linewidth=0)
 plt.title('Variance in m and N')
+plt.savefig('convergence_m_N.png')
 plt.show()
