@@ -8,7 +8,7 @@ from bs_theoretical_values import bs_call
 import time
 
 T = 1
-N = 100000
+N = 1000
 n = 100
 
 degree = 4
