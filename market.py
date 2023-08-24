@@ -6,14 +6,12 @@ class Market:
         Works for Models driven by a 1-dimensional Brownian Motion.
     """
 
-    def __init__(self, n, paths, sigma, r, s0, time_horizon):
+    def __init__(self, n, paths, r, s0, time_horizon):
         try:
             assert n > 0
             self.n = int(n)
             assert paths > 0
             self.N = int(paths)
-            assert sigma >= 0
-            self.sigma = float(sigma)
             assert r >= 0
             self.r = float(r)
             self.s0 = float(s0)
@@ -45,17 +43,44 @@ class Market:
         bb = np.concatenate((b0, np.cumsum(db, axis=1)), axis=1)  # brownian motion
         return bb
 
-    def black_scholes(self):
-        """ Creates the Black Scholes Model using the closed Formula
-            s(t) = s_0* exp( (r - 0.5*sigma^2)*t + sigma*W_t)
+    def heston_paths(self, kappa, theta, v_0, rho, xi, return_vol=False):
+        dt = self.T / self.n
+        size = (self.N, self.n)
+        prices = np.zeros(size)
+        sigs = np.zeros(size)
+        s_t = self.s0
+        v_t = v_0
+        for t in range(self.n):
+            bb = np.random.multivariate_normal(np.array([0, 0]),
+                                               cov=np.array([[1, rho],
+                                                             [rho, 1]]),
+                                               size=self.N) * np.sqrt(dt)
 
-        Returns:
-            s (Matrix / Array): Asset price (row -> Samples, columns -> time points)
+            s_t = s_t * (np.exp((self.r - 0.5 * v_t) * dt + np.sqrt(v_t) * bb[:, 0]))
+            v_t = np.abs(v_t + kappa * (theta - v_t) * dt + xi * np.sqrt(v_t) * bb[:, 1])
+            prices[:, t] = s_t
+            sigs[:, t] = v_t
+
+        if return_vol:
+            return prices, sigs
+        else:
+            return prices
+
+    def black_scholes(self, sigma):
+        """
+
+        Parameters
+        ----------
+        sigma Volatility in Black Scholes SDE
+
+        Returns Black Scholes price Array
+        -------
+
         """
         t = self.time_grid()
         bb = self.brownian_motion()
         s = np.zeros(shape=(self.N, self.n))
         for j in range(self.N):
             for i in range(self.n):
-                s[j, i] = self.s0 * np.exp((self.r - 0.5 * (self.sigma ** 2)) * t[i] + self.sigma * bb[j, i])
+                s[j, i] = self.s0 * np.exp((self.r - 0.5 * (sigma ** 2)) * t[i] + sigma * bb[j, i])
         return s

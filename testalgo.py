@@ -1,3 +1,4 @@
+
 import numpy as np
 
 
@@ -8,8 +9,8 @@ from bs_theoretical_values import bs_call
 import time
 
 T = 1
-N = 1000
-n = 100
+N = 100000
+n = 1000
 
 degree = 4
 
@@ -20,7 +21,7 @@ K = 33
 payoff_structure = "call"
 #reg = "legendre"
 #reg = "polynomial"
-reg = "laguerre"
+reg = "polynomial"
 
 start = time.time()
 M = Market(n=n, paths=N, sigma=sigma, r=r, s0=s0, time_horizon=T)

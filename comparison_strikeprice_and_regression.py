@@ -15,9 +15,9 @@ sigma = 0.2
 s0 = 36
 
 # Initialize Market
-M = Market(n=n, paths=N, sigma=sigma, r=r, s0=s0, time_horizon=T)
+M = Market(n=n, paths=N, r=r, s0=s0, time_horizon=T)
 t = M.time_grid()
-Stock = M.black_scholes()
+Stock = M.black_scholes(sigma=sigma)
 K = np.linspace(1, 100, 100)
 var = np.zeros_like(K)
 reg = ['laguerre', 'legendre', 'polynomial']

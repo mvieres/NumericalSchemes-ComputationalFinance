@@ -14,10 +14,13 @@ def arithmetic_asian_call(x, k, n):
     return np.max((1 / n) * np.sum(x - k), 0)
 
 
-def lsmc(market, degree, k, payoff, regression_type):
+def lsmc(assetprice, market, degree, k, payoff, regression_type):
     """
     Performs the least-squares-monte-carlo algorithm using all paths
-    @param market: Underlying market model
+
+    Note: Asset Price must be supplied outside the function
+    @param assetprice: Prices
+    @param market: Market env, just to get the parameters. Could be extracted from assetprice.
     @param degree: maximum of degrees for regression
     @param k: strike price
     @param payoff: payoff structor of option
@@ -27,15 +30,14 @@ def lsmc(market, degree, k, payoff, regression_type):
 
     # Extracting t, s from Market environment
     t = market.time_grid()
-    s = market.black_scholes()
     r = market.r
     paths = market.N
     n = market.n
     delta_t = t[1] - t[0]  # delta time
     num_steps = t.shape[0]  # Number of time steps (col-dimensions)
-    num_mc = s.shape[0]  # Number of monte carlo runs (row-dimensions)
+    num_mc = assetprice.shape[0]  # Number of monte carlo runs (row-dimensions)
     discount = np.exp(-r * delta_t)  # Constant discount factor for equidistant grid
-    value = np.zeros_like(s)  # Pre-allocation for value
+    value = np.zeros_like(assetprice)  # Pre-allocation for value
 
     # Processing input string of option payoff
     if payoff.lower() == "call":
@@ -64,30 +66,30 @@ def lsmc(market, degree, k, payoff, regression_type):
         return
 
     # Beginning of computation
-    value[:, -1] = g(s[:, -1])  # Compute Value for Last Time point
+    value[:, -1] = g(assetprice[:, -1])  # Compute Value for Last Time point
     # Iteration backwards in Time
     for t in range(num_steps - 2, -1, -1):
         # Regression
         if flag == 1:
-            reg = np.polynomial.legendre.legfit(s[:, t], value[:, t + 1] * discount, deg=degree)
+            reg = np.polynomial.legendre.legfit(assetprice[:, t], value[:, t + 1] * discount, deg=degree)
             continuation_value = np.zeros_like(value[:, -1])
             for j in range(num_mc):
-                s_transformed_j = [ss.eval_legendre(deg, s[j, t]) for deg in range(degree+1)]
+                s_transformed_j = [ss.eval_legendre(deg, assetprice[j, t]) for deg in range(degree+1)]
                 continuation_value[j] = np.dot(reg, s_transformed_j)
         elif flag == 2:
-            reg = np.polynomial.laguerre.lagfit(s[:, t], value[:, t + 1] * discount, deg=degree)
+            reg = np.polynomial.laguerre.lagfit(assetprice[:, t], value[:, t + 1] * discount, deg=degree)
             continuation_value = np.zeros_like(value[:, -1])
             for j in range(num_mc):
-                s_transformed_j = ss.eval_laguerre(range(degree+1), s[j, t])
+                s_transformed_j = ss.eval_laguerre(range(degree+1), assetprice[j, t])
                 continuation_value[j] = np.dot(reg, s_transformed_j)
         else:
-            reg = np.polyfit(s[:, t], value[:, t + 1] * discount, deg=degree)
-            continuation_value = np.polyval(reg, s[:, t])
+            reg = np.polyfit(assetprice[:, t], value[:, t + 1] * discount, deg=degree)
+            continuation_value = np.polyval(reg, assetprice[:, t])
 
         # Compute exercise value
-        ex_val = np.zeros_like(s[:, t])
+        ex_val = np.zeros_like(assetprice[:, t])
         for j in range(num_mc):  # for loop structure because g takes only single values
-            ex_val[j] = g(s[j, t])
+            ex_val[j] = g(assetprice[j, t])
 
         # Update Value Array
         value[:, t] = np.where(ex_val > continuation_value, ex_val, value[:, t + 1] * discount)
