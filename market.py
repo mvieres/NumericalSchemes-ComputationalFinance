@@ -45,7 +45,7 @@ class Market:
 
     def heston_paths(self, kappa, theta, v_0, rho, xi, return_vol=False):
         dt = self.T / self.n
-        size = (self.N, self.n)
+        size = (self.n, self.N)
         prices = np.zeros(size)
         sigs = np.zeros(size)
         s_t = self.s0
@@ -58,8 +58,8 @@ class Market:
 
             s_t = s_t * (np.exp((self.r - 0.5 * v_t) * dt + np.sqrt(v_t) * bb[:, 0]))
             v_t = np.abs(v_t + kappa * (theta - v_t) * dt + xi * np.sqrt(v_t) * bb[:, 1])
-            prices[:, t] = s_t
-            sigs[:, t] = v_t
+            prices[t, :] = s_t
+            sigs[t, :] = v_t
 
         if return_vol:
             return prices, sigs

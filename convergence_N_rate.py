@@ -21,8 +21,9 @@ res_rmse = np.zeros(shape=(len(N,)))
 z = 0
 for i in N:
     print(i)
-    M = Market(n=n, paths=i, sigma=sigma, r=r, s0=s0, time_horizon=T)
-    res_value[z], var[z], res_rmse[z] = lsmc(market=M, degree=degree, k=K, payoff="Call", regression_type="laguerre")
+    M = Market(n=n, paths=i, r=r, s0=s0, time_horizon=T)
+    s = M.black_scholes(sigma=sigma)
+    res_value[z], var[z], res_rmse[z] = lsmc(assetprice=s, market=M, degree=degree, k=K, payoff="Call", regression_type="laguerre")
     z += 1
 
 
