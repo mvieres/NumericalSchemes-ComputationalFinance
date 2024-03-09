@@ -93,11 +93,12 @@ def lsmc(assetprice, market, degree, k, payoff, regression_type):
 
         # Update Value Array
         value[:, t] = np.where(ex_val > continuation_value, ex_val, value[:, t + 1] * discount)
-        # Standard Monte Carlo 
-        v_0 = value[:, 0] * discount
-        value_0 = np.mean(v_0)
-        v0_var = np.var(v_0)
-        var_mc = v0_var / np.sqrt(paths)
-        rmse = np.sqrt(np.mean(((v_0 - value_0) / paths)**2))
+
+    # Standard Monte Carlo
+    v_0 = value[:, 0] * discount
+    value_0 = np.mean(v_0)
+    v0_var = np.var(v_0)
+    var_mc = v0_var / np.sqrt(paths)
+    rmse = np.sqrt(np.mean(((v_0 - value_0) / paths)**2))
 
     return value_0, var_mc, rmse
