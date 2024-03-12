@@ -4,7 +4,7 @@ class Monte_Carlo():
     """ Class to perform different Monte Carlo Estimation for financial options
         TODO: Dependencies within init are inconsistent --> Move all non essential (global) variables for each estimator to its respective function
     """
-    def __init__(self,N,rv, alpha,r, T,K):
+    def __init__(self, N, rv, alpha, r, T, K):
         self.N = N
         self.ov = rv
         self.alpha = alpha
@@ -45,7 +45,7 @@ class Monte_Carlo():
         ki = np.array([lower, upper])
         return p_mc, var_mc, ki
     
-    def Anti_thetic_MC(self,env):
+    def Anti_thetic_MC(self, env):
         """Performs antithetic estimator for geometric brownian motion
         Uses: Environment --> Asset from Market
         Has to be called with r = T and 
