@@ -6,15 +6,16 @@ class TimeGrid:
     def __init__(self, tStart: float, tEnd: float):
         self.tStart = tStart
         self.tEnd = tEnd
-        self.alreadyComputed = {}  # integer n as key, value is boolean
-        self.__timegrid = {}  # integer n as key, value is list of floats
+        self.__timegrid = {}  # integer as key, value is numpy array of time grid points
         pass
 
     def computeTimeGrid(self, n: int) -> None:
-        self.alreadyComputed[n] = True
-        self.__timegrid = np.linspace(self.tStart, self.tEnd, n)
+        self.__timegrid[n] = np.linspace(self.tStart, self.tEnd, n)
 
-    def getTimeGrid(self, n: int) -> list:
-        if not self.alreadyComputed[n]:  # TODO: Test this
+    def getTimeGrid(self, n: int) -> np.array:
+        if not self.__checkIfKeyAlreadyExists(n):
             self.computeTimeGrid(n)
         return self.__timegrid[n]
+
+    def __checkIfKeyAlreadyExists(self, n: int) -> bool:
+        return n in self.__timegrid.keys()
