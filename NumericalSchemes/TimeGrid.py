@@ -7,7 +7,6 @@ class TimeGrid:
         self.tStart = tStart
         self.tEnd = tEnd
         self.__timegrid = {}  # integer as key, value is numpy array of time grid points
-        pass
 
     def computeTimeGrid(self, n: int) -> None:
         self.__timegrid[n] = np.linspace(self.tStart, self.tEnd, n)

@@ -1,13 +1,14 @@
 import numpy as np
 
 import NumericalSchemes.TimeGrid as TimeGrid
+import NumericalSchemes.Utils as Utils
 
 
 class RandomProcesses:
 
     @staticmethod
-    def brownianMotionPath(timeGridInstance: TimeGrid, nSteps: int, startingPoint,
-                           correlationMatrix=None, seed = None) -> np.array:
+    def brownianMotionPath(timeGridInstance: TimeGrid, nSteps: int, startingPoint: list or float,
+                           correlationMatrix=None, seed=None) -> np.array:
         """
         Create a Brownian motion path
         @param timeGridInstance:
@@ -18,7 +19,6 @@ class RandomProcesses:
         @return:
         """
         assert nSteps >= 1
-        assert len(startingPoint) >= 1
         assert len(startingPoint) > 1 if correlationMatrix is not None else True
         if seed is not None:
             np.random.seed(seed)
@@ -26,7 +26,7 @@ class RandomProcesses:
 
         timeGrid = timeGridInstance.getTimeGrid(nSteps)  # TODO: this will not work (wrt the way instances are created)
         delta_t = timeGrid[1] - timeGrid[0]
-        bronwianMotion = np.zeros((nSteps, len(startingPoint)))
+        bronwianMotion = Utils.Utils.initForProcesses(startingPoint, nSteps)
         bronwianMotion[0] = startingPoint
         if correlationMatrix is not None:
             L = np.linalg.cholesky(correlationMatrix)
@@ -62,7 +62,7 @@ class RandomProcesses:
         return bbMotionPaths
 
     def geometricBrownianMotionExact(timeGridInstance: TimeGrid, nSteps: int, startingPoint: float, drift: float,
-                                     diffusion: float, seed: int) -> np.array:
+                                     diffusion: float, seed: int = None) -> np.array:
         """
         Create a one dimensional geometric Brownian motion path
         @param timeGridInstance:
@@ -75,7 +75,8 @@ class RandomProcesses:
         """
         assert nSteps >= 1, "Number of steps must be greater than 1"
         assert diffusion >= 0, "Diffusion must be non negative"
-
+        if seed is not None:
+            np.random.seed(seed)
         timeGrid = timeGridInstance.getTimeGrid(nSteps)
         gbm = np.zeros((nSteps, 1))  # TODO: this might be the wrong shape
         for i in range(0, nSteps):
@@ -84,8 +85,8 @@ class RandomProcesses:
         return gbm
 
     def multipleGeometricBrownianMotionExactPaths(timeGridInstance: TimeGrid, nPaths: int, nSteps: int,
-                                                  startingPoint: float, drift: float, diffusion: float, seed: int) \
-            -> np.array:
+                                                  startingPoint: float, drift: float, diffusion: float,
+                                                  seed: int = None) -> np.array:
         """
         Create multiple geometric Brownian motion paths
         @param timeGridInstance:
@@ -102,3 +103,4 @@ class RandomProcesses:
             gbmPaths[numberPath] = RandomProcesses.geometricBrownianMotionExact(timeGridInstance, nSteps, startingPoint,
                                                                            drift, diffusion, seed)
         return gbmPaths
+    
