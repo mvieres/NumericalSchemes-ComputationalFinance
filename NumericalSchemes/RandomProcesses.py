@@ -61,6 +61,7 @@ class RandomProcesses:
                                                                             nSteps, startingPoint, correlationMatrix)
         return bbMotionPaths
 
+    @staticmethod
     def geometricBrownianMotionExact(timeGridInstance: TimeGrid, nSteps: int, startingPoint: float, drift: float,
                                      diffusion: float, seed: int = None) -> np.array:
         """
@@ -84,6 +85,7 @@ class RandomProcesses:
                                           + diffusion*np.sqrt(timeGrid[i])*np.random.normal())
         return gbm
 
+    @staticmethod
     def multipleGeometricBrownianMotionExactPaths(timeGridInstance: TimeGrid, nPaths: int, nSteps: int,
                                                   startingPoint: float, drift: float, diffusion: float,
                                                   seed: int = None) -> np.array:
