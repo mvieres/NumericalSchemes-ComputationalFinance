@@ -19,7 +19,7 @@ class SdeSolver:
 
     """
     @staticmethod
-    def euler(timeGridInstance: TimeGrid, nSteps: int, startingPoint: np.array,
+    def euler(timeGridInstance: TimeGrid, nSteps: int, startingPoint: np.array or float,
               drift: dict or callable, diffusion: dict or callable, orderDimensions=None, seed:int=None) -> np.array:
         """
         Euler Scheme for multidimensional stochastic differential equations. Drift and diffusion have to be given as

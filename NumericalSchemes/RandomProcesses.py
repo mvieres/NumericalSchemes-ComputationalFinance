@@ -22,6 +22,7 @@ class RandomProcesses:
         assert len(startingPoint) > 1 if correlationMatrix is not None else True
         if seed is not None:
             np.random.seed(seed)
+        sizeBB = len(startingPoint) if startingPoint is list else 1
         # TODO: assertion for correlationMatrix
 
         timeGrid = timeGridInstance.getTimeGrid(nSteps)  # TODO: this will not work (wrt the way instances are created)
@@ -36,7 +37,7 @@ class RandomProcesses:
         else:
             for i in range(1, nSteps):
                 bronwianMotion[i] = (bronwianMotion[i - 1] + np.sqrt(delta_t) *
-                                     np.random.normal(size=len(startingPoint)))
+                                     np.random.normal(size=sizeBB))
 
         return bronwianMotion
 
