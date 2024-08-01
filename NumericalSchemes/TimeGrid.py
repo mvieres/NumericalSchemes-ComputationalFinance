@@ -28,8 +28,8 @@ class TimeGrid:
         return self.__timegrid[n][i] - self.__timegrid[n][i - 1]
 
     def getDtDiffToNextPoint(self, n: int, i: int) -> float:
-        assert i > 0, "i has to be bigger than 0"
-        return self.__timegrid[n][i] - self.__timegrid[n][i - 1]
+        assert i < len(self.__timegrid[n])-1, "i has to be at most the first to last index"
+        return self.__timegrid[n][i + 1] - self.__timegrid[n][i]
 
     def __checkIfKeyAlreadyExists(self, n: int) -> bool:
         return n in self.__timegrid.keys()
