@@ -16,5 +16,19 @@ class TimeGrid:
             self.computeTimeGrid(n)
         return self.__timegrid[n]
 
+    def setTimeGrid(self, n: int, points: list[float]):
+        assert not self.__checkIfKeyAlreadyExists(n), "Time grid already exists w.r.t. n points!"
+        assert len(points) == n, "Number of points has to be equal to n"
+        assert max(list) < self.tEnd, "Time points have to be in the interval [tStart, tEnd]"
+        assert min(list) > self.tStart, "Time points have to be in the interval [tStart, tEnd]"
+
+    def getDtDiffToPreviousPoint(self, n: int, i: int) -> float:
+        assert i > 0, "i has to be bigger than 0"
+        return self.__timegrid[n][i] - self.__timegrid[n][i - 1]
+
+    def getDtDiffToNextPoint(self, n: int, i: int) -> float:
+        assert i > 0, "i has to be bigger than 0"
+        return self.__timegrid[n][i] - self.__timegrid[n][i - 1]
+
     def __checkIfKeyAlreadyExists(self, n: int) -> bool:
         return n in self.__timegrid.keys()

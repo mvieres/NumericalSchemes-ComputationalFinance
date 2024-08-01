@@ -2,6 +2,8 @@ import unittest
 
 import NumericalSchemes.SdeSolver as solver
 import NumericalSchemes.TimeGrid as timegrid
+
+
 class SdeSolverTest(unittest.TestCase):
 
     def test_EulerMultiDimensional(self):

@@ -5,6 +5,14 @@ class Utils:
 
     @staticmethod
     def initForProcesses(startingPoint, nSteps):
+        """
+        Initalize random processes with this given structure.
+        Change between one dimension and multidimensional cases.
+
+        @param startingPoint:
+        @param nSteps:
+        @return:
+        """
         if isinstance(startingPoint, (int, float)):
             x = np.zeros(nSteps)  # For single dimension
         else:
