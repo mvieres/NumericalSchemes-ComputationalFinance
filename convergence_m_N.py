@@ -1,5 +1,5 @@
 import numpy as np
-from matplotlib import cm
+
 import matplotlib.pyplot as plt
 from market import Market
 from algo import lsmc

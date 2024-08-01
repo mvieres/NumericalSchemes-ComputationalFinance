@@ -11,7 +11,3 @@ class MarketTest(unittest.TestCase):
         plt.plot(BlackScholesInstance.timeGridInstance.getTimeGrid(1000), solutionPath)
         plt.show()
         self.assertEqual(solutionPath.shape, (3, 1))
-
-
-if __name__ == '__main__':
-    unittest.main()
