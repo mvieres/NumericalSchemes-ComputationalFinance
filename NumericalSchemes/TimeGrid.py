@@ -21,6 +21,7 @@ class TimeGrid:
         assert len(points) == n, "Number of points has to be equal to n"
         assert max(list) < self.tEnd, "Time points have to be in the interval [tStart, tEnd]"
         assert min(list) > self.tStart, "Time points have to be in the interval [tStart, tEnd]"
+        self.__timegrid[n] = np.array(points)
 
     def getDtDiffToPreviousPoint(self, n: int, i: int) -> float:
         assert i > 0, "i has to be bigger than 0"
