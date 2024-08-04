@@ -8,7 +8,7 @@ class RandomProcesses:
 
     @staticmethod
     def brownianMotionPath(timeGridInstance: TimeGrid, nSteps: int, startingPoint: list or float,
-                           correlationMatrix=None, seed=None) -> np.array:
+                           correlationMatrix=None) -> np.array:
         """
         Create a Brownian motion path
         @param timeGridInstance:
@@ -20,12 +20,11 @@ class RandomProcesses:
         """
         assert nSteps >= 1
         assert len(startingPoint) > 1 if correlationMatrix is not None else True
-        if seed is not None:
-            np.random.seed(seed)
+        if correlationMatrix is not None:
+            assert len(startingPoint) == len(correlationMatrix), \
+                "Dimension of starting point and correlation matrix must be equal"
         sizeBB = len(startingPoint) if startingPoint is list else 1
-        # TODO: assertion for correlationMatrix
-
-        timeGrid = timeGridInstance.getTimeGrid(nSteps)  # TODO: this will not work (wrt the way instances are created)
+        timeGrid = timeGridInstance.getTimeGrid(nSteps)
         delta_t = timeGrid[1] - timeGrid[0]
         bronwianMotion = Utils.Utils.initForProcesses(startingPoint, nSteps)
         bronwianMotion[0] = startingPoint
@@ -58,7 +57,7 @@ class RandomProcesses:
         """
         bbMotionPaths = {}
         for numberPath in range(nPaths):
-             bbMotionPaths[numberPath] = RandomProcesses.brownianMotionPath(timeGridInstance,
+            bbMotionPaths[numberPath] = RandomProcesses.brownianMotionPath(timeGridInstance,
                                                                             nSteps, startingPoint, correlationMatrix)
         return bbMotionPaths
 

@@ -15,7 +15,7 @@ def generate_heston_paths(S, T, r, kappa, theta, v_0, rho, xi,
                                                          [rho, 1]]),
                                            size=paths) * np.sqrt(dt)
 
-        S_t = S_t * (np.exp((r - 0.5 * v_t) * dt + np.sqrt(v_t) * WT[:, 0]))
+        S_t = S_t * (np.exp((r - 0.5 * v_t) * dt + np.sqrt(v_t) * WT[:, 0])) # TODO: Wrong formula??
         v_t = np.abs(v_t + kappa * (theta - v_t) * dt + xi * np.sqrt(v_t) * WT[:, 1])
         prices[:, t] = S_t
         sigs[:, t] = v_t

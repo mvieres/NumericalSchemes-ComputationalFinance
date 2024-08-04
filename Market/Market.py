@@ -18,18 +18,6 @@ class BlackScholes:
         self.scheme = scheme
         self.timeGridInstance = TimeGrid(tStart, tEnd)
 
-    def callOptionTheoreticalPrice(self, k: float, seed=None) -> float:
-        """
-        Theoretical price of european call option with maturity at tEnd and strike price k at time tStart
-        @param k:
-        @return:
-        """
-        if seed is not None:
-            np.random.seed(seed)
-        d1 = (np.log(self.s0 / k) + (self.r + 0.5 * self.sigma ** 2) * (self.tEnd - self.tStart)) / (
-                    self.sigma * np.sqrt(self.tEnd - self.tStart))
-        d2 = d1 - self.sigma * np.sqrt(self.tEnd - self.tStart)
-        return self.s0 * norm.cdf(d1) - k * np.exp(-self.r * (self.tEnd - self.tStart)) * norm.cdf(d2)
 
     def computeSolutionPath(self, nSteps: int) -> np.array:
         drift = lambda t, x: self.r * x

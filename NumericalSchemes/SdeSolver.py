@@ -20,7 +20,7 @@ class SdeSolver:
     """
     @staticmethod
     def euler(timeGridInstance: TimeGrid, nSteps: int, startingPoint: np.array or float,
-              drift: dict or callable, diffusion: dict or callable, orderDimensions=None, seed:int=None) -> np.array:
+              drift: dict or callable, diffusion: dict or callable, orderDimensions=None) -> np.array:
         """
         Euler Scheme for multidimensional stochastic differential equations. Drift and diffusion have to be given as
 
@@ -33,8 +33,6 @@ class SdeSolver:
         @return:
         """
         assert nSteps > 1, "nSteps has to be bigger than 1"
-        if seed is not None:
-            np.random.seed(seed)
         bb = RP.RandomProcesses.brownianMotionPath(timeGridInstance, nSteps, startingPoint)
         timeGrid = timeGridInstance.getTimeGrid(nSteps)
         delta_t = timeGrid[1] - timeGrid[0]
