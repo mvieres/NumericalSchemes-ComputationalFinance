@@ -4,6 +4,19 @@ from NumericalSchemes.TimeGrid import TimeGrid
 from NumericalSchemes.SdeSolver import SdeSolver
 
 
+class Market:
+
+    def __init__(self, params):
+        self.params = params
+        pass
+
+    def computeSolutionPath(self, nSteps: int) -> np.array:
+        pass
+
+    def generateScenarios(self, nPaths: int, nSteps: int) -> np.array:
+        pass
+
+
 class BlackScholes:
 
     def __init__(self, tStart: float, tEnd: float, s0: float, r: float, sigma: float, scheme: str = "euler"):

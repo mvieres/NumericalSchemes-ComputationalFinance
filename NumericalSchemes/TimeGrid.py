@@ -1,9 +1,29 @@
 import numpy as np
+import datetime
+
+
+class LocalDate:
+    def __init__(self, year: int, month: int, day: int):
+        self.date = datetime.date(year, month, day)
+        self.diffToPreviousDate = None
+        self.diffToNextDate: float
+
+    def getDiffToPreviousDate(self, previousDate: datetime.date) -> float:
+        return self.diffToPreviousDate
+
+    def getDiffToNextDate(self, nextDate: datetime.date) -> float:
+        return self.diffToNextDate
+
+    def setDiffToPreviousDate(self, previousDate: datetime.date) -> None:
+        self.diffToPreviousDate = (self.date - previousDate).days
+
+    def setDiffToNextDate(self, nextDate: datetime.date) -> None:
+        self.diffToNextDate = (nextDate - self.date).days
 
 
 class TimeGrid:
 
-    def __init__(self, tStart: float, tEnd: float):
+    def __init__(self, tStart: float or datetime, tEnd: float or datetime):
         self.tStart = tStart
         self.tEnd = tEnd
         self.__timegrid = {}  # integer as key, value is numpy array of time grid points

@@ -16,6 +16,5 @@ class TimeGridTest(unittest.TestCase):
         areEqual = np.array_equal(tenor, [0, 1, 2])
         self.assertTrue(areEqual)
 
-
 if __name__ == '__main__':
     unittest.main()
