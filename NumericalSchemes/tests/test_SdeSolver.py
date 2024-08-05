@@ -1,4 +1,5 @@
 import unittest
+import matplotlib.pyplot as plt
 
 import NumericalSchemes.SdeSolver as solver
 import NumericalSchemes.TimeGrid as timegrid
@@ -20,7 +21,9 @@ class SdeSolverTest(unittest.TestCase):
         drift = lambda t, x: 1 * x
         diffusion = lambda t, x: 0.1 * x
         timeGridInstance = timegrid.TimeGrid(0, 1)
-        solution = solver.SdeSolver.euler(timeGridInstance, 100, 0, drift, diffusion)
+        solution = solver.SdeSolver.euler(timeGridInstance, 100, 1, drift, diffusion)
+        plt.plot(solution)
+        plt.show()
         self.assertEqual(solution.shape(), (1,))
 
 

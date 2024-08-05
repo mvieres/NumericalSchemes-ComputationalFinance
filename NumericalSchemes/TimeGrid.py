@@ -1,6 +1,8 @@
 import numpy as np
 import datetime
+import pandas as pd
 
+# TODO: This file needs work, i.e. TimeGrid is used for simple calculations on a gird. Everything else needs to be specified
 
 class LocalDate:
     def __init__(self, year: int, month: int, day: int):
@@ -8,10 +10,10 @@ class LocalDate:
         self.diffToPreviousDate = None
         self.diffToNextDate: float
 
-    def getDiffToPreviousDate(self, previousDate: datetime.date) -> float:
+    def getDiffToPreviousDate(self) -> float:
         return self.diffToPreviousDate
 
-    def getDiffToNextDate(self, nextDate: datetime.date) -> float:
+    def getDiffToNextDate(self) -> float:
         return self.diffToNextDate
 
     def setDiffToPreviousDate(self, previousDate: datetime.date) -> None:
@@ -19,6 +21,9 @@ class LocalDate:
 
     def setDiffToNextDate(self, nextDate: datetime.date) -> None:
         self.diffToNextDate = (nextDate - self.date).days
+
+    def asOrdinal(self):
+        return self.date.toordinal()  # This is used to get diff w.r.t. days
 
 
 class TimeGrid:
@@ -53,3 +58,25 @@ class TimeGrid:
 
     def __checkIfKeyAlreadyExists(self, n: int) -> bool:
         return n in self.__timegrid.keys()
+
+
+class Calendar(TimeGrid):
+    """
+    This class is a colection of local dates. This forms a calendar. The calendar is used to hold all relevant
+    simulation dates for the monte carlo simulation. If the total number of simulation dates is rather low, the gird is
+    enriched with a given number of points between. The default timescale is given in days. Hence, this class cannot be
+    used to simulate intraday trading.
+    """
+    def __init__(self, simulationDates: list[LocalDate]):
+        tStart = min(simulationDates, key=lambda date: date.date)
+        tEnd = max(simulationDates, key=lambda date: date.date)
+        super().__init__(tStart, tEnd)
+        self.__dates = {}
+        self.__simulationDates = simulationDates
+        self.simulationCalender = None
+
+    def setTimeGrid(self, n: int):
+        pass
+
+    def is_business_day(date):
+        return pd.bdate_range(start=date, end=date).size > 0
