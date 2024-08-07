@@ -1,0 +1,29 @@
+{
+  "name": "some name",
+  "trades":[
+    {"Option": {
+        "type": "call",
+        "exercise": "european",
+        "notionalCurrency": "USD",
+        "strike": 100,
+        "maturity": "2024-12-10",
+        "quantity": 1
+        }},
+        {"Option": {
+        "type": "put",
+        "exercise": "european",
+        "strike": 100,
+        "maturity": "2025-11-10",
+        "quantity": 1
+    }},
+    {"Bond": {
+
+    }}
+  ],
+  "simulationConfig": {
+    "notionalCurrency": "EUR",
+    "useConstantInterestRate": false,
+    "mcSteps": 1000,
+    "discretization": 100
+  }
+}
