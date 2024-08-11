@@ -6,7 +6,7 @@ class Utils:
     @staticmethod
     def initForProcesses(startingPoint, nSteps):
         """
-        Initalize random processes with this given structure.
+        Initialize random processes with this given structure.
         Change between one dimension and multidimensional cases.
 
         @param startingPoint:

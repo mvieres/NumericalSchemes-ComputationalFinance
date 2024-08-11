@@ -5,52 +5,32 @@ from NumericalSchemes.SdeSolver import SdeSolver
 
 
 class Market:
-
-    def __init__(self, params):
-        self.params = params
-        pass
-
-    def computeSolutionPath(self, nSteps: int) -> np.array:
-        pass
-
-    def generateScenarios(self, nPaths: int, nSteps: int) -> np.array:
-        pass
-
-
-class BlackScholes:
-
-    def __init__(self, tStart: float, tEnd: float, s0: float, r: float, sigma: float, scheme: str = "euler"):
+    """
+    This class assumes a constant risk-free return rate of the money market account at first.
+    For the given timegrid, the risk-free rate can be evaluated at tenor points. TODO: This is not yet implemented
+    """
+    def __init__(self, tStart: float, tEnd: float, s0: float, r: float):
+        """
+        :param tStart: float, start time
+        :param tEnd: float, end time
+        :param s0: float, initial stock price
+        :param r: float, risk-free rate, this will be the constant risk-free return rate of the money market account
+        """
+        assert tStart < tEnd, "Start time must be less than end time"
         self.tStart = tStart
         self.tEnd = tEnd
+        self.timeGridInstance = TimeGrid(tStart, tEnd)
         assert s0 > 0, "Initial stock price must be positive"
         self.s0 = s0
         assert r > 0, "Risk-free rate must be positive"
         self.r = r
-        assert sigma >= 0, "Volatility must be non negative"
-        self.sigma = sigma
-        self.scheme = scheme
-        self.timeGridInstance = TimeGrid(tStart, tEnd)
-
+        pass
 
     def computeSolutionPath(self, nSteps: int) -> np.array:
-        drift = lambda t, x: self.r * x
-        diffusion = lambda t, x: self.sigma * x
-        diffusion_derivative = lambda t, x: self.sigma
+        pass
 
-        schemes = {
-            "euler": SdeSolver.euler,
-            "absoluteEuler": SdeSolver.absoluteEuler,
-            "milstein": SdeSolver.milstein
-        }
-
-        if self.scheme in schemes:
-            if self.scheme == "milstein":
-                return schemes[self.scheme](self.timeGridInstance, nSteps, np.array([self.s0]), drift, diffusion,
-                                            diffusion_derivative)
-            else:
-                return schemes[self.scheme](self.timeGridInstance, nSteps, np.array([self.s0]), drift, diffusion)
-        else:
-            raise ValueError("Scheme not implemented")
+    def setYieldCurve(self, yieldCurve: YieldCurve):
+        self.r = yieldCurve
 
 
 class Heston:

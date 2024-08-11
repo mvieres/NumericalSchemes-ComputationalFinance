@@ -27,6 +27,9 @@ class LocalDate:
 
 
 class TimeGrid:
+    """
+    TimeGrid creates an equidistant time grid. It stores different grids with respect to the number of points n.
+    """
 
     def __init__(self, tStart: float or datetime, tEnd: float or datetime):
         self.tStart = tStart
@@ -36,10 +39,19 @@ class TimeGrid:
     def computeTimeGrid(self, n: int) -> None:
         self.__timegrid[n] = np.linspace(self.tStart, self.tEnd, n)
 
-    def getTimeGrid(self, n: int) -> np.array:
+    def getTimeGrid(self, n=None) -> np.array:
+        """
+        Returns the time grid with respect to the number of points n. If n is None, the complete dict of time-grids
+        is returned.
+        """
+        if n is not None:
+            assert isinstance(n, int), "n has to be an integer"
         if not self.__checkIfKeyAlreadyExists(n):
             self.computeTimeGrid(n)
-        return self.__timegrid[n]
+        if n is None:
+            return self.__timegrid
+        else:
+            return self.__timegrid[n]
 
     def setTimeGrid(self, n: int, points: list[float]):
         assert not self.__checkIfKeyAlreadyExists(n), "Time grid already exists w.r.t. n points!"
@@ -62,11 +74,13 @@ class TimeGrid:
 
 class Calendar(TimeGrid):
     """
-    This class is a colection of local dates. This forms a calendar. The calendar is used to hold all relevant
-    simulation dates for the monte carlo simulation. If the total number of simulation dates is rather low, the gird is
-    enriched with a given number of points between. The default timescale is given in days. Hence, this class cannot be
-    used to simulate intraday trading.
+    Calendar is a collection of local dates. This dates from a rather simple time grid. To use this grid for computing,
+    calendar entries are translated to a simple time grid that operates on floats. The reference time scale is "days",
+    i.e. the difference between two consecutive business days within a week is 1, if there is a weekend in between, it
+    is 3.
+    TODO: Not final, needs better specification
     """
+
     def __init__(self, simulationDates: list[LocalDate]):
         tStart = min(simulationDates, key=lambda date: date.date)
         tEnd = max(simulationDates, key=lambda date: date.date)
