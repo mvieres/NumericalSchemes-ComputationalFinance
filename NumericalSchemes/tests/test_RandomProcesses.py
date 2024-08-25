@@ -1,6 +1,7 @@
 import unittest
 import matplotlib.pyplot as plt
 import numpy as np
+import scipy.stats as stats
 
 import NumericalSchemes.RandomProcesses as RP
 import NumericalSchemes.TimeGrid as TimeGrid
@@ -26,12 +27,34 @@ class RandomProcessesTest(unittest.TestCase):
             plt.plot(time_grid_instance.get_time_grid(1000), bb[i])
         plt.show()
 
+    def test_1d_brownian_motion_distribution(self):
+        timeGridInstance = TimeGrid.TimeGrid(0, 1)
+        n_steps = 1000
+        bb = RP.RandomProcesses.multiple_brownian_motion_paths(timeGridInstance, 10000, n_steps, 1)
+        end_values = np.array([bb[i][-1] for i in range(len(bb.keys()))])
+        #plt.hist(end_values, bins=100)
+        #plt.show()
+        #stats.probplot(end_values, dist="norm", plot=plt)
+        #plt.show()
+        statistics, p_value = stats.kstest(end_values, 'norm', args=(0, np.sqrt(1)))
+        # p_value > 0.05 means that H_0 (Normal(0,1) distribution) can not be rejected at the 5% level
+        self.assertTrue(p_value > 0.05)
+
     def test_multidimesnisonal_brownian_motion(self):
         timeGridInstance = TimeGrid.TimeGrid(0, 10)
         n_steps = 1000
         bb = RP.RandomProcesses.brownian_motion_path(timeGridInstance, n_steps, 2)
-        print(bb)
         plt.plot(bb[:, 0], bb[:, 1])
+        plt.show()
+
+    def test_3d_brownian_motion(self):
+        timeGridInstance = TimeGrid.TimeGrid(0, 10)
+        n_steps = 1000
+        bb = RP.RandomProcesses.brownian_motion_path(timeGridInstance, n_steps, 3)
+        bb[:, 0], bb[:, 1] = np.meshgrid(bb[:, 0], bb[:, 1])
+        fig = plt.figure()
+        ax = fig.add_subplot(111, projection='3d')
+        ax.plot_surface(bb[:, 0], bb[:, 1], bb[:, 2], cmap='viridis')
         plt.show()
 
 
