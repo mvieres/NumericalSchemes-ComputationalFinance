@@ -24,6 +24,8 @@ class TrolleSchwartz(Market):
         self.kappa = kappa
         self.theta = theta
         self.sigma = sigma
+        drift = {1: lambda t, x: self.x[1] * (self.alpha_0 +
+                                              self.alpha_1*(self.tEnd - t))*np.exp(-self.gamma*(self.tEnd - t))*integral_term, 2: lambda t,x: 0}
         pass
 
     def computeSolutionPath(self, nSteps: int) -> np.array:

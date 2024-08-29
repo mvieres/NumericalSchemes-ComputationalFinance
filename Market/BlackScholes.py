@@ -20,6 +20,7 @@ class BlackScholes(Market):
         self.solver_instance = SdeSolver(time_grid_instance=self.time_grid_instance,
                                          drift=self.drift, diffusion=self.diffusion, starting_point=s0)
         self.solver_instance.set_diffustion_derivative(self.diffusion_derivative)
+        self.underlying = self.scenarios  # TODO: this should be a pointer to the underlying of market class
         self.schemes = {
             "euler": self.solver_instance.euler,
             "absolute_euler": self.solver_instance.absolute_euler,

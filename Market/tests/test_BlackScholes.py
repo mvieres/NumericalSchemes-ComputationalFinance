@@ -2,7 +2,7 @@ import unittest
 from Market.BlackScholes import BlackScholes
 
 
-class test_black_scholes(unittest.TestCase):
+class BlackScholesTest(unittest.TestCase):
 
     def test_init(self):
         blackscholes_instance = BlackScholes(0, 1, 100, 0.01, 0.01, "milstein")

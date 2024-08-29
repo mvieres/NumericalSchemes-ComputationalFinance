@@ -9,7 +9,7 @@ class Market:
     This class assumes a constant risk-free return rate of the money market account at first.
     For the given timegrid, the risk-free rate can be evaluated at tenor points. TODO: This is not yet implemented
     """
-    def __init__(self, tStart: float, tEnd: float, s0: float, r: float):
+    def __init__(self, tStart: float, tEnd: float, s0: float, r: float or None):
         """
         :param tStart: float, start time
         :param tEnd: float, end time
