@@ -1,7 +1,7 @@
 import numpy as np
+import matplotlib.pyplot as plt
 from scipy.stats import norm
 from NumericalSchemes.TimeGrid import TimeGrid
-from NumericalSchemes.SdeSolver import SdeSolver
 
 
 class Market:
@@ -19,18 +19,23 @@ class Market:
         assert tStart < tEnd, "Start time must be less than end time"
         self.tStart = tStart
         self.tEnd = tEnd
-        self.timeGridInstance = TimeGrid(tStart, tEnd)
+        self.time_grid_instance = TimeGrid(tStart, tEnd)
         assert s0 > 0, "Initial stock price must be positive"
         self.s0 = s0
         assert r > 0, "Risk-free rate must be positive"
         self.r = r
+        self.underlying = {}
         pass
 
     def computeSolutionPath(self, nSteps: int) -> np.array:
         pass
 
-    def setYieldCurve(self, yieldCurve: YieldCurve):
-        self.r = yieldCurve
+    def plot_underlying(self, n_steps):
+        for key in self.underlying.keys():
+            plt.plot(self.time_grid_instance.get_time_grid(n_steps), self.underlying[key], label=key)
+        plt.xlabel("Time")
+        plt.ylabel("Price")
+        plt.show()
 
 
 class Heston:

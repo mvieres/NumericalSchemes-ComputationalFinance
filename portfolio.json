@@ -21,7 +21,7 @@
     }}
   ],
   "simulationConfig": {
-    "notionalCurrency": "EUR",
+    "referenceYieldCurve": "EUR_Generic",
     "useConstantInterestRate": false,
     "mcSteps": 1000,
     "discretization": 100

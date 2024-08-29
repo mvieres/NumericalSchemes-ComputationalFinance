@@ -1,21 +1,22 @@
+import numpy as np
+
 from NumericalSchemes.TimeGrid import TimeGrid
 from NumericalSchemes.TimeGrid import Calendar
 from Market.TrolleSchwartz import TrolleSchwartz
 
 
-class YieldCurve:
+class YieldCurveContainer:
 
     """
     Compute and store the yield curve for a given time grid / calendar.
     The idea is to offer possibilities to pre-compute the yield curve for the given grid.
     Nevertheless, there is also the possibility to compute the yield curve during pricing simulation. (TODO: Ensure thread safety)
     """
-    def __init__(self, calendar=None, timegrid=None):
-        assert (calendar is not None) or (timegrid is not None), "Either calendar or timegrid must be given"
+    def __init__(self, calendar_or_timegrid: Calendar or TimeGrid = None):
         if calendar is not None and timegrid is None:
             assert isinstance(calendar, Calendar), "Calendar must be of type Calendar"
             self.calendar = calendar
-            self.timegrid = calendar.getTimeGrid()
+            self.timegrid = calendar.get_time_grid()
             return
         if timegrid is not None and calendar is None:
             assert isinstance(timegrid, TimeGrid), "Timegrid must be of type TimeGrid"
@@ -47,10 +48,10 @@ class YieldCurve:
         """
         assert self.timegrid is not None, "Timegrid must be set"
         # TODO: Check that Timegrid has meaningful values
-        unique_differences = self.compute_unique_differences(self.timegrid.getTimeGrid())
+        unique_differences = self.compute_unique_differences(self.timegrid.get_time_grid())
 
         self.yield_curve = {} # dict of dicts: first comes the number of points in the grid (n) and then the yield curve
-        time_grid_keys = self.timegrid.getTimeGrid().keys()
+        time_grid_keys = self.timegrid.get_time_grid().keys()
         for n in time_grid_keys:
             self.yield_curve[n] = {}
             for dt in unique_differences:
@@ -62,14 +63,23 @@ class YieldCurve:
         :param dt: float, time difference
         :return: list[float], yield curve for the given dt
         """
-        trolle_schwartz_instance = TrolleSchwartz()
+        # TODO: figure out where to setup these parameters
+        alpha_0 = 1
+        alpha_1 = 1
+        gamma = 1
+        kappa = 1
+        theta = 1
+        sigma = 1
+
+        return 0.1
+
     def getYieldCurve(self, lendingTime: float):
         """Returns the complete yield curve for the given lending time."""
-        return 0.1
+        return 1.1
 
     def getShortRate(self, lendingTime: float):
         """Returns the short rate (interest rate at t=0) for the given lending time."""
-        return
+        return self.getYieldCurve(lendingTime) - 1
 
     @staticmethod
     def compute_unique_differences(points):

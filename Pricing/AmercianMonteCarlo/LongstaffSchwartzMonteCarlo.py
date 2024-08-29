@@ -1,7 +1,7 @@
 import numpy as np
 
-#from Market.Heston import Heston
 from Market.BlackScholes import BlackScholes
+from Market.YieldCurveContainer import YieldCurveContainer
 
 
 class LongstaffSchwartzMonteCarlo:
@@ -10,11 +10,20 @@ class LongstaffSchwartzMonteCarlo:
         self.underlyingInstance = underlyingInstance
         self.nPaths = nPaths
         self.nSteps = nSteps
-        self.g = payoff
+        self.payoff = payoff
         self.timeGridInstance = self.underlyingInstance.timeGridInstance  # TODO: check that this is a pointer
         self.regressiontype = "polynomial"
-        self.calender = underlyingInstance.timeGridInstance.getTimeGrid(self.nSteps)
+        self.calender = underlyingInstance.timeGridInstance.get_time_grid(self.nSteps)
+        self.regression_types ={
+            "legendre": np.polynomial.legendre.legfit,
+            "laguerre": np.polynomial.laguerre.lagfit,
+            "polynomial": np.polyfit
+        }
+        self.yield_curve_instance = YieldCurveContainer(self.timeGridInstance.get_time_grid(self.nSteps))
         pass
+
+    def reset(self):
+        self.__init__(self.underlyingInstance, self.payoff, self.nPaths, self.nSteps)
 
     def setRegressionType(self, regressiontype: str):
         self.regressiontype = regressiontype

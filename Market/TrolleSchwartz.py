@@ -1,6 +1,9 @@
+import numpy as np
+
+from Market.Market import Market
 
 
-class TrolleSchwartz:
+class TrolleSchwartz(Market):
     """
     TrolleSchwartz implements the TrolleSchwartz model for N=1.
     Its purpose is to model the time-t forward rate for lending time T.
@@ -13,15 +16,18 @@ class TrolleSchwartz:
     simga_{f,i}(t,T) = (alpha_0 + alpha_1*(T-t))*exp(-gamma*(T-t)).
     # TODO: not clear if t_start has to be specified; paper implies interval [0,T]. Not clear if this curve viewd on [t,T] is the same as a simulation started at t.
     """
-    def __init__(self):
-        self.forward_rate = {}
+    def __init__(self,t_start, t_end, alpha_0: float, alpha_1: float, gamma: float, kappa: float, theta: float, sigma: float, rho: float):
+        super().__init__(t_start, t_end, 0, None)
+        self.alpha_0 = alpha_0
+        self.alpha_1 = alpha_1
+        self.gamma = gamma
+        self.kappa = kappa
+        self.theta = theta
+        self.sigma = sigma
         pass
 
-    def compute_forward_rate(self, t_start: float, T: float):
+    def computeSolutionPath(self, nSteps: int) -> np.array:
         pass
 
-    def get_forward_rate(self, t_start: float, t: float, T: float):
-        pass
 
-    def get_short_rate(self,t_start: float, T: float):
-        self.get_forward_rate(t_start, 0, T)
+
