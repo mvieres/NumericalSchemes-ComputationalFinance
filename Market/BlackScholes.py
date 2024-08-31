@@ -28,12 +28,12 @@ class BlackScholes(Market):
         }
         assert self.scheme in self.schemes.keys(), "Scheme key error"
 
-    def computeSolutionPath(self, nSteps: int) -> np.array:
+    def compute_solution_path(self, nSteps: int) -> np.array:
         return self.schemes[self.scheme](nSteps)
 
     def generateScenarios(self, nPaths: int, nSteps: int) -> None:
         for i in range(nPaths):
-            self.scenarios[i] = self.computeSolutionPath(nSteps)
+            self.scenarios[i] = self.compute_solution_path(nSteps)
 
     def plot_underlying(self, n_steps):
         super().plot_underlying(n_steps)

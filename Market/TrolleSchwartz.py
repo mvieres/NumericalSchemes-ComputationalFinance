@@ -28,8 +28,5 @@ class TrolleSchwartz(Market):
                                               self.alpha_1*(self.tEnd - t))*np.exp(-self.gamma*(self.tEnd - t))*integral_term, 2: lambda t,x: 0}
         pass
 
-    def computeSolutionPath(self, nSteps: int) -> np.array:
+    def compute_solution_path(self, nSteps: int) -> np.array:
         pass
-
-
-

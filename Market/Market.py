@@ -17,6 +17,8 @@ class Market:
         :param r: float, risk-free rate, this will be the constant risk-free return rate of the money market account
         """
         assert tStart < tEnd, "Start time must be less than end time"
+        assert s0 > 0, "Initial stock price must be positive"
+        assert r > 0, "Risk-free rate must be positive"
         self.tStart = tStart
         self.tEnd = tEnd
         self.time_grid_instance = TimeGrid(tStart, tEnd)
@@ -27,7 +29,7 @@ class Market:
         self.underlying = {}
         pass
 
-    def computeSolutionPath(self, nSteps: int) -> np.array:
+    def compute_solution_path(self, nSteps: int) -> np.array:
         pass
 
     def plot_underlying(self, n_steps):
@@ -38,7 +40,7 @@ class Market:
         plt.show()
 
 
-class Heston:
+class Heston(Market):
 
     def __init__(self, tStart: float, tEnd: float, s0: float, r: float, v0: float,
                  kappa: float, theta: float, sigma: float, rho: float, scheme: str = "euler"):
@@ -60,8 +62,9 @@ class Heston:
         self.scheme = scheme
         assert -1 <= rho <= 1, "Correlation coefficient must be between -1 and 1"
         self.rho = rho
+        self.scenarios = self.underlying
 
-    def computeSolutionPath(self, nSteps: int) -> np.array:
+    def compute_solution_path(self, nSteps: int) -> np.array:
         pass
 
     def checkFellercondition(self) -> bool:

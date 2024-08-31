@@ -17,7 +17,7 @@ class SdeSolver:
 
     The following numerical schemes are implemented: Euler, Absolute Euler, Milstein
     TODO: Alfonsi Scheme, Drift Implicit Euler, Full implicit euler
-
+    TODO: Inconsistency for dimension within dict and callable drift and diffusion
     """
     # TODO: Adapt to general time grid use, fix init for dimension and starting points.
 

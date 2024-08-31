@@ -29,7 +29,7 @@ class LongstaffSchwartzMonteCarlo:
         self.regressiontype = regressiontype
 
     def generateNewSamples(self):
-        self.underlyingInstance.computeSolutionPath(self.nSteps)
+        self.underlyingInstance.compute_solution_path(self.nSteps)
 
     def computeOptionPrice(self) -> float:
 
