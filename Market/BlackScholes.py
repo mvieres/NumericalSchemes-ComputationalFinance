@@ -10,6 +10,7 @@ class BlackScholes(Market):
         self.tStart = tStart
         self.tEnd = tEnd
         super().__init__(tStart, tEnd, s0, r)  # TODO: wrong initalization
+        self.dimension = 1
         assert sigma >= 0, "Volatility must be non negative"
         self.sigma = sigma
         self.scheme = scheme
@@ -35,5 +36,5 @@ class BlackScholes(Market):
         for i in range(nPaths):
             self.scenarios[i] = self.compute_solution_path(nSteps)
 
-    def plot_underlying(self, n_steps):
-        super().plot_underlying(n_steps)
+    def plot_underlying(self):
+        super().plot_underlying()

@@ -24,10 +24,11 @@ class SdeSolver:
     def __init__(self, time_grid_instance: TimeGrid, drift: callable or dict, diffusion: callable or dict,
                  starting_point: np.array or float, order_dimensions=None):
         self.time_grid_instance = time_grid_instance
+        self.dimension = None
         self.drift = drift
         self.diffusion = diffusion
         self.starting_point = starting_point
-        self.get_dimension(starting_point)
+        self.dimension = self.get_dimension(starting_point)
         self.order_dimensions = order_dimensions
         if order_dimensions is not None:
             assert isinstance(order_dimensions, list), "Order dimensions must be a list"
@@ -41,18 +42,19 @@ class SdeSolver:
             raise ValueError("Input error: Drift and diffusion have to be either callable or dict")
         pass
 
-    def get_dimension(self, starting_point):
+    def set_order(self, order_dimensions: list) -> None:
+        self.order_dimensions = order_dimensions
+
+    def get_dimension(self, starting_point) -> int:
         if isinstance(starting_point, float) or isinstance(starting_point, int):
-            self.dimension = 1
+            dim = 1
         else:
-            self.dimension = len(starting_point)
-        return
+            dim = len(starting_point)
+        return dim
 
     def calculate_diffusion_euler(self, dimension: int, bm_increment, time, space):
         diffusion_vector = self.diffusion[dimension]
         diffusion_keys = diffusion_vector.keys()
-        #num_randomness = len(diffusion_keys)
-        #assert num_randomness == len(bm_increment), "Number of random variables and number of diffusion keys must be equal"
         diffusion_evaluated = 0
         for key in diffusion_keys:
             diffusion_evaluated += (diffusion_vector[key](time, space)*bm_increment[key-1])
@@ -66,7 +68,7 @@ class SdeSolver:
                                                               n_steps=n_steps, dimension=self.dimension)
         if starting_point is not None:
             self.starting_point = starting_point  # Update new starting point
-            self.get_dimension(starting_point)
+            self.dimension = self.get_dimension(starting_point)
         else:
             starting_point = self.starting_point
         x = Utils.Utils.initForProcesses(self.dimension, n_steps)
@@ -81,7 +83,7 @@ class SdeSolver:
 
     def euler_multi_d(self, n_steps, time_grid, bm_path, x):
         for i in range(1, n_steps):
-            for dimension in self.order_dimensions: # TODO: make sure order_dimension works here
+            for dimension in self.order_dimensions:  # TODO: make sure order_dimension works here
                 dim_index = dimension - 1
                 x[i][dim_index] = (x[i - 1][dim_index] + self.drift[dimension](time_grid[i - 1], x[i - 1]) * (time_grid[i] - time_grid[i - 1]) + self.calculate_diffusion_euler(dimension, bm_path[i] - bm_path[i - 1], time_grid[i - 1], x[i - 1]))
         return x
