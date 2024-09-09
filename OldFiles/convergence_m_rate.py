@@ -2,7 +2,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 from bs_theoretical_values import bs_call
 from market import Market
-from algo import lsmc
+from OldFiles.algo import lsmc
 
 
 # Parameters

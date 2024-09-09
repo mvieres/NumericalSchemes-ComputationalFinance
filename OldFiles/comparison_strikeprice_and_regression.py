@@ -2,7 +2,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 from market import Market
-from algo import lsmc
+from OldFiles.algo import lsmc
 from scipy.stats import norm
 
 # Parameters
