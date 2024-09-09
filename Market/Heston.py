@@ -46,9 +46,9 @@ class Heston(Market):
     def check_fellercondition(self) -> bool:
         return 2 * self.kappa * self.theta > self.sigma ** 2
 
-    def generate_scenarios(self, nPaths: int, nSteps: int) -> None:
-        for i in range(nPaths):
-            self.scenarios[i] = self.compute_solution_path(nSteps)
+    def generate_scenarios(self, n_paths: int, n_steps: int) -> None:
+        for i in range(n_paths):
+            self.scenarios[i] = self.compute_solution_path(n_steps)
 
     def plot_underlying(self):
         super().plot_underlying()

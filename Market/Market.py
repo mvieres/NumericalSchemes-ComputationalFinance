@@ -1,6 +1,5 @@
 import numpy as np
 import matplotlib.pyplot as plt
-from scipy.stats import norm
 from NumericalSchemes.TimeGrid import TimeGrid
 
 
@@ -29,7 +28,13 @@ class Market:
         self.dimension = None
         pass
 
-    def compute_solution_path(self, nSteps: int) -> np.array:
+    def reset(self):
+        self.__init__(self.t_start, self.t_end, self.s0, self.r)
+
+    def get_short_rate(self):
+        return self.r
+
+    def compute_solution_path(self, n_steps: int) -> np.array:
         pass
 
     def plot_underlying(self):
