@@ -17,6 +17,7 @@ class LongstaffSchwartzMonteCarlo:
         self.underlying_instance = underlying_instance
         self.n_paths = n_paths
         self.n_steps = n_steps
+        self.__check_for_market_scenarios()
         self.payoff = payoff
         self.regressiontype = "polynomial"
         self.time_grid = underlying_instance.time_grid_instance.get_time_grid(self.n_steps)
@@ -57,11 +58,13 @@ class LongstaffSchwartzMonteCarlo:
     def __check_for_market_scenarios(self):
         if len(self.underlying_instance.scenarios.keys()) == 0:
             self.underlying_instance.generate_scenarios(n_paths=self.n_paths, n_steps=self.n_steps)
+        else:
+            assert len(self.underlying_instance.scenarios) == self.n_paths, "Number of paths must be equal to number of scenarios"
 
     def compute_option_price(self, return_type=False) -> np.array:
-        self.__check_for_market_scenarios()
         asset_price = np.zeros(shape=(len(self.underlying_instance.scenarios), self.n_steps))
         for key in self.underlying_instance.scenarios.keys():
+            # TODO: Control for stochastic volatility models here!!
             asset_price[key] = self.underlying_instance.scenarios[key]
         value = np.zeros_like(asset_price)
 
