@@ -1,6 +1,5 @@
-import numpy as np
 import matplotlib.pyplot as plt
-from market import Market
+from OldFiles.market import Market
 
 n = 1000
 N = 1

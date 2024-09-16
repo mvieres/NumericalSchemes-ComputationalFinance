@@ -2,7 +2,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 from bs_theoretical_values import bs_call
 from market import Market
-from algo import lsmc
+from OldFiles.algo import lsmc
 
 
 # Parameters
@@ -31,12 +31,12 @@ theoretical_value = bs_call(s0=s0, strikeprice=K, timehorizon=T, r=r, sigma=sigm
 res_diff = np.abs(res_value - theoretical_value)
 # Plot
 plt.plot(m, res_diff, 'x', color='black')
-inc, b = np.polyfit(m, res_diff, 1)
-plt.plot(m, inc*m + b, color='grey', linestyle='--')
+inc, b = np.polyfit(m, var, 1)
+plt.plot(m, inc*var + b, color='grey', linestyle='--')
 plt.xlabel('degree')
-plt.ylabel('Difference values')
+plt.ylabel('Variance')
 plt.legend(['Difference', 'Regression coefficient: ' + str(inc)])
-plt.suptitle('A.s.-convergence')
+
 plt.title('Parameters: T=' + str(T) + ' K=' + str(K) + ' n=' + str(n) + ' paths=' + str(N) + ' r=' + str(r) + ' sigma='
           + str(sigma) + ' s0=' + str(s0))
 plt.savefig('convergence_m.png')

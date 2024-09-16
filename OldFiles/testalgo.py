@@ -2,10 +2,9 @@
 import numpy as np
 
 
-from market import Market
-from algo import lsmc
-from scipy.stats import norm
-from bs_theoretical_values import bs_call
+from OldFiles.market import Market
+from OldFiles.algo import lsmc
+from OldFiles.bs_theoretical_values import bs_call
 import time
 
 T = 1
