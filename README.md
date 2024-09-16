@@ -1,63 +1,54 @@
-# Numerical Schemes and Monte-Carlo for stochastic processes
+# Numerical Schemes and Monte Carlo Methods for Stochastic Processes
+Author: **Maximilian Vieres** [mvieres@outlook.com]\
+Version: **0.1.0**
 
-**Author**: Maximilian Vieres [mvieres@outlook.com]\
-**Version**: 0.1.0
+**Note: This module is a work in progress.**
 
-**This module is work-in-progress**
+This repository provides modules for various applications in the field of stochastic processes, with a primary focus on numerical schemes and Monte Carlo methods for stochastic differential equations (SDEs). While these techniques are commonly applied in mathematical finance, they also find uses in other fields, such as geological research through Monte Carlo methods.
 
+The repository aims to evaluate a portfolio, as outlined in portfolio.json. To achieve this, the repository is divided into the following submodules:
 
-This repository contains moduls for various purposes in the field of stochastic processes. 
-The main focus is on numerical schemes and Monte-Carlo methods for stochastic differential equations (SDEs).
-Most common application for those theories are in the field of mathematical finance, but other fields, such as geological research, borrow from Mont-Carlo-techniques.
-Hence, the repository sets its goal on evaluating a portfolio of the structure as shown in portfolio.json. In order to do this, the repo is divided into small submodules:
-- **NumericalSchemes**: Contains the implementation of the most common stochastic objects and numerical schemes for SDEs, e.g. the Brownian motion and Euler-Maruyama scheme.
-- **MonteCarlo**: Contains the implementation of the Monte-Carlo-method for SDEs in a general setting.
-- **Market**: Contains the implementation of a market model, which is used to evaluate the portfolio, e.g. the Black-Scholes model or Heston.
-- **Pricing**: Contains various techniques to evaluate different types of trades.
+- NumericalSchemes: Implements common stochastic objects and numerical schemes for SDEs, such as Brownian motion and the Euler-Maruyama scheme.
+- MonteCarlo: Implements general Monte Carlo methods for SDEs.
+- Market: Contains market models used to evaluate the portfolio, such as the Black-Scholes or Heston models.
+- Pricing: Provides techniques for evaluating various types of financial trades.
 
-The most important design principe is to keep the modules **NumericalSchemes** and **MonteCarlo** as general as possible, such that they can be used in other applications.
-The modules **Market** and **Pricing** are more specific and highly depend the first two modules.
+The most important design principle is to keep NumericalSchemes and MonteCarlo as general as possible, allowing their use in broader applications. Meanwhile, Market and Pricing are more specific and rely heavily on the first two modules.
 
 ## Numerical Schemes
-In the field of numerics for stochastic processes, there are many schemes. The most commen one is the Euler-Maruyama scheme. Notable mentions with potential higher convergence rates are milstein and Runge-Kutta schemes.
-However, when it comes to random processes, the most important object is the Brownian motion, which has low regularity. Hence, convergence speed for numerical schemes is limited by the discretization of the Brownian motion.
-As a direct consequence, the Euler-Maruyama scheme is commonly used. Nevertheless, there are more schemes that are derived from Euler and are used in specialized cases.
-This module tries to offer a collection of the most useful ideas and schemes to tackle as many problems as possible.
-Details on the schemes and their theoretical background can be find in the methodological documentation (which is not yet completed).
+Numerical methods for stochastic processes are crucial, with the Euler-Maruyama scheme being the most widely used. Other schemes, like the Milstein and Runge-Kutta methods, offer potentially higher convergence rates.
 
+However, when dealing with random processes, particularly Brownian motion (which has low regularity), the speed of convergence for numerical schemes is limited by the discretization of the Brownian motion itself. As a result, the Euler-Maruyama scheme is often preferred, though variations derived from Euler's method are useful in specialized cases.
 
-## Monte-Carlo
-The **Monte-Carlo** module contains the implementation of the Multi-Level-Monte-Carlo idea.
-As the standard Monte-Carlo estimator is given by the typical expectation estimator, we do not need to implement a module for this idea.
-However, there are various ways to reduce variance in Monte-Carlo estimators, e.g. MLMC and importance sampling. (Work in progress)
+This module offers a collection of the most relevant schemes and approaches to handle a wide range of problems. Further details on these schemes and their theoretical foundations will be included in the methodological documentation (still in progress).
+
+## Monte Carlo
+The MonteCarlo module implements the Multi-Level Monte Carlo (MLMC) method. Since the basic Monte Carlo estimator is simply the standard expectation estimator, no additional module is needed for this standard case.
+There are various techniques to reduce variance in Monte Carlo estimators, such as MLMC and importance sampling. These advanced methods are still under development.
 
 ## Market
-When implementing "the market", we have to consider the following:
-- What does the market consist of?
-- What are the markets properties?
-- How to store / process the information?
-- How to store market data?
-- How to separate the market data from simulated market data?
+When modeling "the market," several considerations must be addressed:
 
-Currently, the most abstract idea of "a market" is implemented in the class `AbstractMarket` in the file `AbstractMarket.py`. It simply consists of a time grid, starting price and a constant risk-free rate. 
-As this class does not specify any model, it has no asset prices. The prefix "Abstract" suggest that this class only elaborates on the most basic ideas of what the market should look like and borrows its naming-convention from java-implements.
-Hence, every market model should inherit from this class and "implement" it's methods; most notably the `generate_scenarios` method.
+1) What constitutes the market?
+2) What are its properties?
+3) How is information stored and processed?
+4) How is market data stored?
+5) How do we distinguish between real market data and simulated data?
+6) Currently, the most abstract version of a market is implemented in the AbstractMarket class, found in AbstractMarket.py. This class consists of a time grid, a starting price, and a constant risk-free rate. It does not specify any asset prices, as it serves as a foundation for market models rather than a complete implementation.
 
-
+The "Abstract" prefix indicates that this class focuses on the fundamental aspects of a market and follows naming conventions similar to those in Java. Every specific market model should inherit from this class and implement its methods, most notably the generate_scenarios method.
 
 ## Pricing
-The general setup for pricing financial products is in theory straight forward. Depending on the underlying model, there might be a closed formula for the price.
-If this is the case, those closed solutions should be used. The most prominent example are Put- and Call-Options under the Black-Scholes model.
-If there are no closed formulas, Monte-Carlo methods are used to evaluate the price. This Monte-Carlo approach is per se model independent.
-However, when fixing an underlying model, the Monte-Carlo estimators can be optimized and might look differently. The interested reader is referred to the methodological documentation for more details.
+Pricing financial products is theoretically straightforward. For certain models, closed-form solutions for prices exist and should be used when available. A prominent example is the pricing of put and call options under the Black-Scholes model.
 
-### European Option
-Under the Black-Scholes model, Put- and Call-Options have a closed formula.
+In cases where no closed-form solutions exist, Monte Carlo methods are used to evaluate the price, as these methods are model-independent. However, when a specific model is used, the Monte Carlo estimators can be optimized accordingly. For more information, refer to the methodological documentation.
 
-### Amercian Option
-Currently the only pricing technique implemented is the Longstaff-Schwartz algorithm for American options. The algorithm is implemented in the class `LongstaffSchwartzMonteCarlo` in the file `LongstaffSchwartzMonteCarlo.py`. The class is initialized with the following parameters:
+### European Options
+Under the Black-Scholes model, there are closed-form solutions for pricing European put and call options.
 
+### American Options
+Currently, the only implemented pricing technique for American options is the Longstaff-Schwartz algorithm, which is available in the LongstaffSchwartzMonteCarlo class within LongstaffSchwartzMonteCarlo.py. The class can be initialized with the following parameters:
 
-### Quasi-Monte-Carlo
-This contains a section to Quasi-Monte-Carlo methods, which are used to evaluate swaps. This is not put under the section of **Monte-Carlo** as Qusi-Monte-Carlo is technically not a Monte-Carlo method. 
+### Quasi-Monte Carlo
+This section introduces Quasi-Monte Carlo methods, which are used to evaluate swaps. These methods are not included under the Monte Carlo section because Quasi-Monte Carlo is technically not a Monte Carlo method.
 
