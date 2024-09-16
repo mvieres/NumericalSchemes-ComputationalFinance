@@ -10,7 +10,8 @@ class YieldCurveContainer:
     """
     Compute and store the yield curve for a given time grid / calendar.
     The idea is to offer possibilities to pre-compute the yield curve for the given grid.
-    Nevertheless, there is also the possibility to compute the yield curve during pricing simulation. (TODO: Ensure thread safety)
+    Nevertheless, there is also the possibility to compute the yield curve during pricing simulation.
+    TODO: needs new spezification
     """
     def __init__(self, calendar_or_timegrid: Calendar or TimeGrid = None):
         if calendar is not None and timegrid is None:
