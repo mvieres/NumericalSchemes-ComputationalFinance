@@ -1,7 +1,7 @@
-from Market.Market import Market
+from Market.AbstractMarket import AbstractMarket
 
 
-class JumpToRuin(Market):
+class JumpToRuin(AbstractMarket):
     """
     Jump to ruin model introduced by Merton (1976).
     """

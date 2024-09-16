@@ -1,9 +1,9 @@
 import numpy as np
 
-from Market.Market import Market
+from Market.AbstractMarket import AbstractMarket
 
 
-class TrolleSchwartz(Market):
+class TrolleSchwartz(AbstractMarket):
     """
     TrolleSchwartz implements the TrolleSchwartz model for N=1.
     Its purpose is to model the time-t forward rate for lending time T.

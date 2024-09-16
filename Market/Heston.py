@@ -1,10 +1,10 @@
 import numpy as np
 
-from Market.Market import Market
+from Market.AbstractMarket import AbstractMarket
 from NumericalSchemes.SdeSolver import SdeSolver
 
 
-class Heston(Market):
+class Heston(AbstractMarket):
     def __init__(self, t_start: float, t_end: float, s0: float, v0: float,mue: float, r: float, kappa: float, theta: float, sigma: float, rho: float, scheme: str):
         self.tStart = t_start
         self.tEnd = t_end

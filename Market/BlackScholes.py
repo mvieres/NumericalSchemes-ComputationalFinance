@@ -1,10 +1,10 @@
 from NumericalSchemes.SdeSolver import SdeSolver
-from Market.Market import Market
+from Market.AbstractMarket import AbstractMarket
 
 import numpy as np
 
 
-class BlackScholes(Market):
+class BlackScholes(AbstractMarket):
 
     def __init__(self, t_start: float, t_end: float, s0: float, r: float, sigma: float, scheme: str = "euler"):
         self.tStart = t_start

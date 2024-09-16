@@ -3,7 +3,7 @@ import matplotlib.pyplot as plt
 from NumericalSchemes.TimeGrid import TimeGrid
 
 
-class Market:
+class AbstractMarket:
     """
     This class assumes a constant risk-free return rate of the money market account at first.
     For the given timegrid, the risk-free rate can be evaluated at tenor points. TODO: This is not yet implemented
@@ -35,6 +35,9 @@ class Market:
         return self.r
 
     def compute_solution_path(self, n_steps: int) -> np.array:
+        pass
+
+    def generate_scenarios(self, n_paths: int, n_steps: int) -> None:
         pass
 
     def plot_underlying(self):
