@@ -17,7 +17,7 @@ class TrolleSchwartz(AbstractMarket):
     # TODO: not clear if t_start has to be specified; paper implies interval [0,T]. Not clear if this curve viewd on [t,T] is the same as a simulation started at t.
     """
     def __init__(self,t_start, t_end, alpha_0: float, alpha_1: float, gamma: float, kappa: float, theta: float, sigma: float, rho: float):
-        super().__init__(t_start, t_end, 0, None)
+        super().__init__(t_start, t_end, 10, 0.01)  # TODO: s0 is not used in the model -> review initialization
         self.alpha_0 = alpha_0
         self.alpha_1 = alpha_1
         self.gamma = gamma

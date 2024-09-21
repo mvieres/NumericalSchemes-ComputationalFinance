@@ -20,9 +20,9 @@ class BlackScholesOptionPrices(BlackScholes):
         """
         if s0 is not None:
             self.s0 = s0
-        d1 = (np.log(self.s0 / k) + (self.r + 0.5 * self.sigma ** 2) * (self.tEnd - self.tStart)) / (
-                    self.sigma * np.sqrt(self.tEnd - self.tStart))
-        d2 = d1 - self.sigma * np.sqrt(self.tEnd - self.tStart)
+        d1 = (np.log(self.s0 / k) + (self.r + 0.5 * self.sigma ** 2) * (self.t_end - self.t_start)) / (
+                    self.sigma * np.sqrt(self.t_end - self.t_start))
+        d2 = d1 - self.sigma * np.sqrt(self.t_end - self.t_start)
         return d1, d2
 
     def call_option_theoretical_price(self, k: float, s0=None) -> float:
@@ -34,8 +34,8 @@ class BlackScholesOptionPrices(BlackScholes):
         """
         if s0 is not None:
             self.s0 = s0
-        d1, d2 = self.get_d1_d2(k, s0)
-        return self.s0 * norm.cdf(d1) - k * np.exp(-self.r * (self.tEnd - self.tStart)) * norm.cdf(d2)
+        d1, d2 = self.get_d1_d2(k, self.s0)
+        return self.s0 * norm.cdf(d1) - k * np.exp(-self.r * (self.t_end - self.t_start)) * norm.cdf(d2)
 
     def put_option_theoretical_price(self, k: float, s0=None) -> float:
         """
@@ -44,11 +44,13 @@ class BlackScholesOptionPrices(BlackScholes):
         @param k:
         @return:
         """
-        d1, d2 = self.get_d1_d2(k, s0)
-        return k * np.exp(-self.r * (self.tEnd - self.tStart)) * norm.cdf(-d2) - s0 * norm.cdf(-d1)
+        if s0 is not None:
+            self.s0 = s0
+        d1, d2 = self.get_d1_d2(k, self.s0)
+        return k * np.exp(-self.r * (self.t_end - self.t_start)) * norm.cdf(-d2) - self.s0 * norm.cdf(-d1)
 
 
-class TrolleSchwartz:
+class TrolleSchwartzOptionPrices:
     """
     Theoretical prices for bond options when priced under the risk neutral measure and the TrolleSchwartz model.
     """

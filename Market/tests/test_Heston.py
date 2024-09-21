@@ -17,7 +17,7 @@ class HestonTest(unittest.TestCase):
         sigma = 0.1
         rho = 0.01
         scheme = "euler"
-        heston_instance = Heston(t_start, t_end, s0, v0, mue, r, kappa, theta, sigma, rho, scheme)
+        heston_instance = Heston(t_start, t_end, s0, v0, r, kappa, theta, sigma, rho, scheme)
         heston_instance.generate_scenarios(4, 1000)
         heston_instance.plot_underlying()
         pass
@@ -34,7 +34,7 @@ class HestonTest(unittest.TestCase):
         sigma = 0.1
         rho = 0.01
         scheme = "euler"
-        heston_instance = Heston(t_start, t_end, s0, v0, mue, r, kappa, theta, sigma, rho, scheme)
+        heston_instance = Heston(t_start, t_end, s0, v0, r, kappa, theta, sigma, rho, scheme)
         try:
             heston_instance.generate_scenarios(4, 10)
             self.assertTrue(True)

@@ -2,17 +2,13 @@ import numpy as np
 
 from Market.AbstractMarket import AbstractMarket
 from NumericalSchemes.SdeSolver import SdeSolver
+from PortfolioEvaluation.Params.HestonParams import HestonParams
 
 
 class Heston(AbstractMarket):
-    def __init__(self, t_start: float, t_end: float, s0: float, v0: float,mue: float, r: float, kappa: float, theta: float, sigma: float, rho: float, scheme: str):
-        self.tStart = t_start
-        self.tEnd = t_end
-        self.s0 = s0
-        self.r = r
+    def __init__(self, t_start: float, t_end: float, s0: float, v0: float,r: float, kappa: float, theta: float, sigma: float, rho: float, scheme: str):
         super().__init__(t_start, t_end, s0, r)
         self.dimension = 2
-        self.mue = mue
         assert v0 > 0, "Initial volatility must be positive"
         self.v0 = v0
         assert kappa > 0, "Mean reversion rate must be positive"
@@ -26,7 +22,7 @@ class Heston(AbstractMarket):
         self.scheme = scheme
         assert -1 <= rho <= 1, "Correlation coefficient must be between -1 and 1"
         self.rho = rho
-        drift = {2: lambda t, x: self.kappa * (self.theta - x[1]), 1: lambda t, x: self.mue * x[0]}
+        drift = {2: lambda t, x: self.kappa * (self.theta - x[1]), 1: lambda t, x: self.r * x[0]}
         diffustion = {1: {1: lambda t, x: self.rho*np.sqrt(x[1])*x[0],
                           2: lambda t, x: np.sqrt(1-(self.rho**2))*np.sqrt(x[1])*x[0]},
                       2: {1: lambda t, x: self.sigma * np.sqrt(x[1])}}
@@ -52,3 +48,12 @@ class Heston(AbstractMarket):
 
     def plot_underlying(self):
         super().plot_underlying()
+
+    def pull_params(self, params: HestonParams):
+        self.s0 = params.get_s0()
+        self.v0 = params.get_v0()
+        self.r = params.get_r()
+        self.kappa = params.get_kappa()
+        self.theta = params.get_theta()
+        self.sigma = params.get_sigma()
+        self.rho = params.get_rho()

@@ -3,12 +3,14 @@ from Market.AbstractMarket import AbstractMarket
 
 import numpy as np
 
+from PortfolioEvaluation.Params.BlackScholesParams import BlackScholesParams
+
 
 class BlackScholes(AbstractMarket):
 
     def __init__(self, t_start: float, t_end: float, s0: float, r: float, sigma: float, scheme: str = "euler"):
-        self.tStart = t_start
-        self.tEnd = t_end
+        self.t_start = t_start
+        self.t_end = t_end
         super().__init__(t_start, t_end, s0, r)
         self.dimension = 1
         assert sigma >= 0, "Volatility must be non negative"
@@ -38,3 +40,17 @@ class BlackScholes(AbstractMarket):
 
     def plot_underlying(self):
         super().plot_underlying()
+
+    def get_sigma(self):
+        return self.sigma
+
+    def set_sigma(self, sigma):
+        self.sigma = sigma
+
+    def pull_params(self, params: BlackScholesParams):
+        self.set_r(params.get_r())
+        self.set_sigma(params.get_sigma())
+        self.set_s0(params.get_s0())
+        self.set_t_start(params.get_t_start())
+        self.set_t_end(params.get_t_end())
+        pass

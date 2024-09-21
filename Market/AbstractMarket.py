@@ -40,6 +40,8 @@ class AbstractMarket:
     def generate_scenarios(self, n_paths: int, n_steps: int) -> None:
         pass
 
+    def pull_params(self, params):
+        pass
     def plot_underlying(self):
         keys_underlying = self.underlying.keys()
         time_grid = self.time_grid_instance.get_time_grid(len(self.underlying[list(keys_underlying)[0]]))
@@ -58,3 +60,27 @@ class AbstractMarket:
         plt.xlabel("Time")
         plt.ylabel("Price")
         plt.show()
+
+    def set_r(self, r):
+        self.r = r
+
+    def set_s0(self, s0):
+        self.s0 = s0
+
+    def set_t_start(self, t_start):
+        self.t_start = t_start
+
+    def set_t_end(self, t_end):
+        self.t_end = t_end
+
+    def get_r(self):
+        return self.r
+
+    def get_s0(self):
+        return self.s0
+
+    def get_t_start(self):
+        return self.t_start
+
+    def get_t_end(self):
+        return self.t_end
