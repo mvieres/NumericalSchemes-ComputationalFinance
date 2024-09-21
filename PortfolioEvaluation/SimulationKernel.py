@@ -42,3 +42,4 @@ class SimulationKernel:
                 self.value = tp_instance.call_option_theoretical_price(trade_params.get_strike())
             else:
                 raise ValueError("Option type not implemented")
+        self.value = trade_params.get_quantity() * self.value

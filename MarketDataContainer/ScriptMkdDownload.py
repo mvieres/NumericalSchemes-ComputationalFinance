@@ -4,7 +4,7 @@ import matplotlib.pyplot as plt
 
 
 ticker = yf.Ticker('AAPL')
-expiration_date = '2024-09-20'
+expiration_date = '2024-09-27'
 
 # Fetch the call options
 calls = ticker.option_chain(expiration_date).calls
