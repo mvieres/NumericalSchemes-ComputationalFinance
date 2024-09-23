@@ -7,8 +7,11 @@ from Market.Heston import Heston
 from Pricing.TheoreticalPrices import BlackScholesOptionPrices
 
 
-class MyTestCase(unittest.TestCase):
+class LongstaffSchwartzMonteCarloTest(unittest.TestCase):
+    """
 
+        TODO: LSMC returns wrong values. Can be checked via Put-Call Parity with respect to American-European options.
+    """
     def test_lsm_init(self):
         bs_instance = BlackScholes(0, 1, 100, 0.05, 0.2)
         lsm_instance = lsmc(bs_instance, lambda x: np.maximum(100 - x, 0), 10, 100)
@@ -49,7 +52,7 @@ class MyTestCase(unittest.TestCase):
         bs_instance = BlackScholes(t_start=t_start, t_end=t_end, s0=s0, r=r, sigma=sigma)
         n_paths = 30000
         n_steps = 1000
-        payoff = lambda x: np.maximum(x - strike, 0)
+        payoff = lambda x: np.maximum(strike - x, 0)
         lsm_instance = lsmc(bs_instance, payoff=payoff, n_paths=n_paths, n_steps=n_steps)
         lsm_instance.compute_option_price()
         theoretical_instance = BlackScholesOptionPrices(t_start=t_start, t_end=t_end, s0=s0, r=r, sigma=sigma)

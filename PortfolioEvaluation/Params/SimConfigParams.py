@@ -13,11 +13,10 @@ class SimConfigParams:
             "foreign_exchange": "Heston"
         }
         self.default_models = None
-        pass
 
     def from_dict(self, data):
         self.discretization = data.get('discretization', 100)
-        self.n_paths = data.get('n_paths', 1000)
+        self.n_paths = data.get('mc_steps', 1000)
         self.use_constant_interest_rate = data.get('use_constant_interest_rate', False)
         self.reference_yield_curve = data.get('reference_yield_curve')
         self.default_models = data.get('default_models', self.default_models_fallback)

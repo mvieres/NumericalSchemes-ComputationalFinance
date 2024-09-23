@@ -19,7 +19,7 @@ class LongstaffSchwartzMonteCarlo:
         self.n_steps = n_steps
         self.__check_for_market_scenarios()
         self.payoff = payoff
-        self.regressiontype = "polynomial"
+        self.default_type = "polynomial"
         self.time_grid = underlying_instance.time_grid_instance.get_time_grid(self.n_steps)
         self.__regression_types = {
             "legendre": np.polynomial.legendre.legfit,
@@ -50,7 +50,7 @@ class LongstaffSchwartzMonteCarlo:
         self.payoff = payoff
 
     def set_regression_type(self, regressiontype: str):
-        self.regressiontype = regressiontype
+        self.default_type = regressiontype
 
     def generate_samples(self):
         self.underlying_instance.compute_solution_path(self.n_steps)
@@ -73,7 +73,7 @@ class LongstaffSchwartzMonteCarlo:
             dt = self.time_grid[time_index + 1] - self.time_grid[time_index]
             discount = np.exp(-self.underlying_instance.get_short_rate()*dt)
             # perform regression for continuation value
-            reg = self.__regression_types[self.regressiontype](asset_price[:, time_index], value[:, time_index + 1] * discount, self.degree)
+            reg = self.__regression_types[self.default_type](asset_price[:, time_index], value[:, time_index + 1] * discount, self.degree)
             continuation_value = self.__compute_cv(time_index, reg, asset_price)
             execise_value = np.zeros_like(asset_price[:, time_index])
             for j in range(self.n_paths):
@@ -93,7 +93,7 @@ class LongstaffSchwartzMonteCarlo:
 
     def __compute_cv(self, time_index, reg, asset_price):
 
-        if self.regressiontype == "polynomial":
+        if self.default_type == "polynomial":
             continuation_value = np.polyval(reg, asset_price[:, time_index])
         else:
             continuation_value = np.zeros_like(asset_price[:, time_index])

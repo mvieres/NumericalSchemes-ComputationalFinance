@@ -5,7 +5,7 @@
         "id": 1111,
         "underlying": "APPL",
         "type": "call",
-        "exercise": "european",
+        "exercise": "american",
         "notional_currency": "USD",
         "strike": 100,
         "maturity": "2024-12-10",
@@ -20,7 +20,7 @@
           "notional_currency": "USD",
           "strike": 100,
           "maturity": "2024-12-10",
-          "quantity": 2
+          "quantity": 1
         }
     }
   ],
@@ -29,9 +29,9 @@
       "stock_option": "BlackScholes",
       "interest_rate": "TrolleSchwartz"
     },
-    "referenceYieldCurve": "EUR_Generic",
-    "useConstantInterestRate": false,
-    "mcSteps": 1000,
+    "reference_yield_curve": "USD",
+    "use_constant_interest_rate": false,
+    "mc_steps": 1000,
     "discretization": 100
   }
 }

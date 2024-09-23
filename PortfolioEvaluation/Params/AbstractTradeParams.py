@@ -3,6 +3,7 @@
 class AbstractTradeParams:
 
     def __init__(self):
+        self.category = None
         self.underlying = None
         self.id = None
         self.quantity = None

@@ -1,5 +1,7 @@
 import json
 from datetime import date, datetime
+from webbrowser import Error
+
 from logging import error
 
 from MarketDataContainer.MkdContainer import MkdContainer
@@ -23,6 +25,8 @@ class RunPortfolioEvaluation:
     def __init__(self, portfolio_name: str):
         self.portfolio_str = portfolio_name
         self.portfolio_des = None
+        self.underlying_list = []
+        self.currency_list = []
         self.request_profile = None
         self.result_profile = None
         self.job_requests = {}
@@ -38,7 +42,7 @@ class RunPortfolioEvaluation:
         self.simulation_params_str = "simulation_params"
 
         self.today = date.today()
-        self.mkd_container = MkdContainer(self.today)
+        self.mkd_container = MkdContainer()
 
     def run(self):
         self.read_portfolio()
@@ -51,6 +55,7 @@ class RunPortfolioEvaluation:
         with open(self.portfolio_str, 'r') as file:
             data = json.load(file)
         self.portfolio_params.from_dict(data)
+        # TODO: Implement check for required fields.
 
     def get_params(self):
         """
@@ -63,18 +68,29 @@ class RunPortfolioEvaluation:
         for trade in self.trades:
             assert len(trade.keys()) == 1, "structure of trades does not match, only one entry in dict allowed"
             trade_entry = list(trade.keys())[0]
-            #id = trade.get(trade_entry).get('id')
+            temporary_dict = trade[trade_entry].copy()
+            self.underlying_list.append(temporary_dict.get("underlying"))
+            self.currency_list.append(temporary_dict.get("notional_currency"))
             if trade_entry == "stock_option":
-                temporary_dict = trade[trade_entry].copy()
                 trade[trade_entry] = StockOptionParams()
                 trade[trade_entry].from_dict(temporary_dict)
             else:
-                error("Some entry in trades did not process the right param class")
+                error("entry with id"+f"{id}"+"in trades did not process the right param class")
 
-        # TODO:
-        # analyze trades for each company (spot prices) / curve (e.g. yield curve) for market data loading
-        # Load market data here
-        self.mkd_container.load()  # As of now this only "loads" two constant values
+        # Get Fx names
+        reference_curr = self.sim_config_params.get_reference_yield_curve()
+        required_fx = [currency + "_" + reference_curr for currency in self.currency_list]
+        self.mkd_container.set_currency_list(required_fx)
+        self.mkd_container.set_underlying_list(self.underlying_list)
+        if reference_curr == "USD":
+            reference_curr = "^IRX"  # TODO: Mapping of reference yield curve to the ticker names -> the same could be chosen, but e.g. ^IRX for 13week USD yield curve is not intuitive
+        else:
+            raise Error("Other reference yield curves not implemented yet")
+        self.mkd_container.set_reference_curve_name(reference_curr)
+        try:
+            self.mkd_container.load()
+        except Exception as e:
+            error(f"Market data could not be loaded: {e}")
 
     def process_params(self):
         """
@@ -89,16 +105,14 @@ class RunPortfolioEvaluation:
         default_models_as_str = self.sim_config_params.get_default_models()
         default_models_as_class = self.process_default_models(default_models_as_str)  # This converts the model from sting to a class object
         # Create new simulation object that has the classes
-        # Enforced structure self.job_request = {"id": {"trade_params": self.trades, "simulation_params": {}}}
+        # Enforced structure self.job_requests = {"id": {"trade_params": self.trades, "simulation_params": {}}}
 
         for trade in self.trades:
             trade_category = list(trade.keys())[0]
-            trade_entry = trade[trade_category]
-            assert isinstance(trade_entry, AbstractTradeParams)
-            id = trade_entry.get_id()
-            trade_entry.set_category(trade_category)
-            self.job_requests[id] = {self.trade_params_str: trade_entry}
-
+            trade_params = trade[trade_category]
+            id = trade_params.get_id()
+            trade_params.set_category(trade_category)
+            self.job_requests[id] = {self.trade_params_str: trade_params}
             self.job_requests[id][self.simulation_params_str] = default_models_as_class.get(trade_category)  # Creates class instance for each trade, but class is empty
             # Fill up simulation params
             self.job_requests[id] = self.convert(self.job_requests[id])
@@ -143,8 +157,7 @@ class RunPortfolioEvaluation:
 
         # Demo implementation for the case stock_option -> BlackScholes TODO
         # Get the most genereal parameters: r, s0, t_start, t_end
-        sim_params.set_s0(self.mkd_container.get_today_underlying(trade_dict[self.trade_params_str].underlying))
-
+        sim_params.set_s0(self.mkd_container.get_latest_spot_price(trade_dict[self.trade_params_str].underlying))
         end_date = trade_dict[self.trade_params_str].maturity  # TODO: correct for right times, i.e. today.toordinal() == 0
         sim_params.set_t_start(0)
         sim_params.set_t_end(self.convert_date(end_date).toordinal() - self.today.toordinal())

@@ -10,14 +10,14 @@ from PortfolioEvaluation.RunPortfolioEvaluation import RunPortfolioEvaluation
 class RunPortfolioEvaluationTest(unittest.TestCase):
 
     def test_run_functionality(self):
-        runner_instance = RunPortfolioEvaluation(portfolio_name='C:/Users/pkv4e/Documents/GitHub/Least-squares-monte-carlo/PortfolioEvaluation/portfolio.json')
+        runner_instance = RunPortfolioEvaluation(portfolio_name='C:/Users/pkv4e/Documents/GitHub/NumericalSchemes-ComputationalFinance/PortfolioEvaluation/portfolio.json')
         try:
             runner_instance.run()
         except Exception as e:
             self.fail(e)
 
     def test_process_default_models(self):
-        runner_instance = RunPortfolioEvaluation(portfolio_name='C:/Users/pkv4e/Documents/GitHub/Least-squares-monte-carlo/PortfolioEvaluation/portfolio.json')
+        runner_instance = RunPortfolioEvaluation(portfolio_name='C:/Users/pkv4e/Documents/GitHub/NumericalSchemes-ComputationalFinance/PortfolioEvaluation/portfolio.json')
         default_dict = {
             "stock_option": "BlackScholes",
             "interest_rate": "TrolleSchwartz",
@@ -33,7 +33,7 @@ class RunPortfolioEvaluationTest(unittest.TestCase):
             self.assertTrue(isinstance(result[key], supposed_dict[key].__class__))
 
     def test_get_params(self):
-        runner_instance = RunPortfolioEvaluation(portfolio_name='C:/Users/pkv4e/Documents/GitHub/Least-squares-monte-carlo/PortfolioEvaluation/portfolio.json')
+        runner_instance = RunPortfolioEvaluation(portfolio_name='C:/Users/pkv4e/Documents/GitHub/NumericalSchemes-ComputationalFinance/PortfolioEvaluation/portfolio.json')
         input_list = [{'stock_option': {'company': 'APPL', 'exercise': 'european', 'id': 1111, 'maturity': '2024-12-10',
                            'notional_currency': 'USD', 'quantity': 1, 'strike': 100, 'type': 'call'}}, {
              'stock_option': {'company': 'ADS', 'exercise': 'european', 'id': 1112, 'maturity': '2024-12-10',
