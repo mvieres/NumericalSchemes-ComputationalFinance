@@ -3,7 +3,7 @@
   "trades":[
     {"stock_option": {
         "id": 1111,
-        "underlying": "APPL",
+        "underlying": "AAPL",
         "type": "call",
         "exercise": "american",
         "notional_currency": "USD",
@@ -14,7 +14,7 @@
     },{
         "stock_option": {
           "id": 1112,
-          "underlying": "ADS",
+          "underlying": "NVDA",
           "type": "put",
           "exercise": "european",
           "notional_currency": "USD",
