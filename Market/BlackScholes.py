@@ -17,7 +17,7 @@ class BlackScholes(AbstractMarket):
         self.sigma = sigma
         self.scheme = scheme
         self.scenarios = {}  # Stores different paths; i.e. one sample path = one scenario
-        self.drift = lambda t, x: r * x
+        self.drift = lambda t, x: (r - 0.5*sigma**2) * x
         self.diffusion = lambda t, x: self.sigma * x
         self.diffusion_derivative = lambda t, x: self.sigma
         self.solver_instance = SdeSolver(time_grid_instance=self.time_grid_instance,
