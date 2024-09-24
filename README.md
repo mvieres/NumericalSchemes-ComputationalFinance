@@ -53,5 +53,10 @@ Currently, the only implemented pricing technique for American options is the Lo
 This section introduces Quasi-Monte Carlo methods, which are used to evaluate swaps. These methods are not included under the Monte Carlo section because Quasi-Monte Carlo is technically not a Monte Carlo method.
 
 # Portfolio Evaluation
+
+**Note:** The complete repository does not give any thoughts on correct risk neutral pricing. Implying, that all calculated prices are in general wrong. To get risk neutral pricing in the black scholes model, one can change the drift callable. Risk neutral pricing will be addressed later during the development
+
 The repository also contains a module to evaluate a portfolio of trades. As of now, the basic framework and value for European call / put options is implemented.
 An example for such a portfolio is provided in portfolio.json.
+
+As of now, only stock options are implemented and modelled under the Black-Scholes model. Details will be described at a later stage.
