@@ -9,10 +9,18 @@ class MkdWrapperTest(unittest.TestCase):
     def test_get_current_price(self):
         mkd = MkdWrapper("AAPL")
         #try:
-        spot = mkd.get_current_price()
+        spot = mkd.load_current_price()
         #except Error:
         #    self.fail("get_current_price() raised an exception")
         self.assertTrue(spot > 0)
+
+    def test_get_implied_volatility(self):
+        mkd = MkdWrapper("AAPL")
+        try:
+            iv = mkd.load_implied_volatility()
+        except Error:
+            self.fail("get_implied_volatility() raised an exception")
+        self.assertTrue(iv > 0)
 
     def test_edge_cases_interest(self):
         mkd_container = MkdWrapper('^IRX')

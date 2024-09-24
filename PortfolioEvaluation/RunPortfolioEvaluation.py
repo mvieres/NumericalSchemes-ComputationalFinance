@@ -151,6 +151,7 @@ class RunPortfolioEvaluation:
         This function should convert the trade_dict to a class instance
         """
         trade_category = trade_dict[self.trade_params_str].get_category()
+        underlying_name = trade_dict[self.trade_params_str].underlying
         model = trade_dict[self.simulation_params_str].__class__.__name__.replace("Params", "")
         trade_dict['model'] = model
         sim_params = trade_dict[self.simulation_params_str]
@@ -164,10 +165,9 @@ class RunPortfolioEvaluation:
         # Get the model specific parameters
         sim_params.set_r(self.mkd_container.get_today_short_rate())
         if model == "BlackScholes":
-            sim_params.set_sigma(0.2)  # Get here default or specific params for each model and underlying name (e.g. from database)
+            sim_params.set_sigma(self.mkd_container.get_implied_volatility(underlying_name))
         else:
             error(f"Model {model} not implemented yet")
-
         return trade_dict
 
     def convert_date(self, input_date: str) -> date:

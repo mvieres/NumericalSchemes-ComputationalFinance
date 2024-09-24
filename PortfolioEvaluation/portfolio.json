@@ -5,7 +5,7 @@
         "id": 1111,
         "underlying": "AAPL",
         "type": "call",
-        "exercise": "american",
+        "exercise": "european",
         "notional_currency": "USD",
         "strike": 100,
         "maturity": "2024-12-10",
