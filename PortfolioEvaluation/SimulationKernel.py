@@ -19,7 +19,7 @@ class SimulationKernel:
         self.general_sim_params = general_sim_params
         self.job_request = None
         self.models = {
-            "BlackScholes": BlackScholes(0, 1, 1, 0, 0),
+            "BlackScholes": BlackScholes(0, 1, 1, 0, 0, 'euler', 'exposure'),
             "TrolleSchwartz": TrolleSchwartz(0, 1, 0, 0, 0, 0, 0 ,0, 0),
             "Heston": Heston(0, 1, 1, 0.1, 0, 1, 1, 1, 0.5, 'euler')
         }

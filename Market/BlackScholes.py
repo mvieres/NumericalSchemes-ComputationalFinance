@@ -7,8 +7,11 @@ from PortfolioEvaluation.Params.BlackScholesParams import BlackScholesParams
 
 
 class BlackScholes(AbstractMarket):
+    """
 
-    def __init__(self, t_start: float, t_end: float, s0: float, r: float, sigma: float, scheme: str = "euler"):
+
+    """
+    def __init__(self, t_start: float, t_end: float, s0: float, r: float, sigma: float, scheme: str = "euler", sim_type="normal"):
         self.t_start = t_start
         self.t_end = t_end
         super().__init__(t_start, t_end, s0, r)
@@ -17,7 +20,11 @@ class BlackScholes(AbstractMarket):
         self.sigma = sigma
         self.scheme = scheme
         self.scenarios = {}  # Stores different paths; i.e. one sample path = one scenario
-        self.drift = lambda t, x: (r - 0.5*sigma**2) * x
+        self.sim_type = sim_type
+        if sim_type == "normal":
+            self.drift = lambda t, x: r * x
+        else:
+            self.drift = lambda t, x: (r - 0.5*sigma**2) * x
         self.diffusion = lambda t, x: self.sigma * x
         self.diffusion_derivative = lambda t, x: self.sigma
         self.solver_instance = SdeSolver(time_grid_instance=self.time_grid_instance,
