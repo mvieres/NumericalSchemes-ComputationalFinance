@@ -37,7 +37,10 @@ class RandomProcesses:
 
         for i in range(1, n_steps):  # Loop over time steps
             dt = time_grid_instance.get_dt_diff_to_previous_point(n_steps, i)
-            brownian_motion[i] = brownian_motion[i - 1] + np.sqrt(dt) * (matrix @ np.random.normal(size=dimension))
+            if dimension > 1:
+                brownian_motion[i] = brownian_motion[i - 1] + np.sqrt(dt) * (matrix @ np.random.normal(size=dimension))
+            else:
+                brownian_motion[i] = brownian_motion[i - 1] + np.sqrt(dt) * np.random.normal()
         return brownian_motion
 
     @staticmethod
