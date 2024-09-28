@@ -37,12 +37,13 @@ class SimulationKernel:
         trade_params = self.job_request["trade_params"]
         category = trade_params.get_category()
         model_instance = self.models.get(model)
-        model_instance.pull_params(sim_params)  # This is very (!!!!) important
-        model_instance.generate_scenarios(self.general_sim_params.n_paths, self.general_sim_params.discretization)
+        model_instance.pull_params(sim_params)  # This is very (!!!!) important otherwise the simulation runs with wrong parameters
+        model_instance.generate_scenarios(self.general_sim_params.get_n_paths(), self.general_sim_params.get_discretization())
 
         if category == "stock_option":
             self.__process_stock_option(model_instance, model, sim_params, trade_params)
-        self.value = trade_params.get_quantity() * self.value
+        if trade_params.get_quantity() is not None:
+            self.value = trade_params.get_quantity() * self.value
 
     def __process_stock_option(self, model_instance, model, sim_params, trade_params):
         if model == "BlackScholes" and trade_params.get_exercise() == "european":
