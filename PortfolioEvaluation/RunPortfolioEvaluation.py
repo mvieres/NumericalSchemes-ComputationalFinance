@@ -1,11 +1,12 @@
 import json
+import mysql.connector
+from mysql.connector import Error
 from datetime import date, datetime
 from webbrowser import Error
 
-from logging import error
+from logging import error, ERROR
 
 from MarketDataContainer.MkdContainer import MkdContainer
-from PortfolioEvaluation.Params.AbstractTradeParams import AbstractTradeParams
 from PortfolioEvaluation.Params.BlackScholesParams import BlackScholesParams
 from PortfolioEvaluation.Params.HestonParams import HestonParams
 from PortfolioEvaluation.Params.SimConfigParams import SimConfigParams
@@ -37,12 +38,16 @@ class RunPortfolioEvaluation:
         self.portfolio_params = PortfolioParams()
         self.sim_config_params = SimConfigParams()
         self.trade_params = {}  # Structure that contains simulation parameters for each trade
+        self.default_params = {}
 
         self.trade_params_str = "trade_params"
         self.simulation_params_str = "simulation_params"
 
         self.today = date.today()
         self.mkd_container = MkdContainer()
+        self.db_params = None
+        self.db = None
+        self.db_status = None
 
     def run(self):
         self.read_portfolio()
@@ -56,6 +61,22 @@ class RunPortfolioEvaluation:
             data = json.load(file)
         self.portfolio_params.from_dict(data)
         # TODO: Implement check for required fields.
+        # get database params
+        try:
+            with open("C:/Users/pkv4e/Documents/db_params.json", 'r') as file:
+                self.db_params = json.load(file)
+        except Exception as e:
+            self.db_status = False
+            print(f"Database params could not be loaded due to Error: {e}, continuing without database")
+        # get default params for database fallback
+        try:
+            with open("C:/Users/pkv4e/Documents/GitHub/NumericalSchemes-ComputationalFinance/PortfolioEvaluation/Params/BlackScholesDefault.json", 'r') as file:
+                self.default_params["BlackScholes"] = json.load(file)
+            with open("C:/Users/pkv4e/Documents/GitHub/NumericalSchemes-ComputationalFinance/PortfolioEvaluation/Params/BlackScholesDefault.json", 'r') as file:
+                self.default_params["Heston"] = json.load(file)
+        except Exception as e:
+            print(f"Default parameters could not be loaded due to Error: {e}")
+
 
     def get_params(self):
         """
@@ -85,12 +106,15 @@ class RunPortfolioEvaluation:
         if reference_curr == "USD":
             reference_curr = "^IRX"  # TODO: Mapping of reference yield curve to the ticker names -> the same could be chosen, but e.g. ^IRX for 13week USD yield curve is not intuitive
         else:
-            raise Error("Other reference yield curves not implemented yet")
+            raise ERROR("Other reference yield curves not implemented yet")
         self.mkd_container.set_reference_curve_name(reference_curr)
         try:
             self.mkd_container.load()
         except Exception as e:
             error(f"Market data could not be loaded: {e}")
+        # establish database connection for model parameters
+        if self.db_status is None:
+            self.db, self.db_status = self.connect_to_database(self.db_params)
 
     def process_params(self):
         """
@@ -115,7 +139,7 @@ class RunPortfolioEvaluation:
             self.job_requests[id] = {self.trade_params_str: trade_params}
             self.job_requests[id][self.simulation_params_str] = default_models_as_class.get(trade_category)  # Creates class instance for each trade, but class is empty
             # Fill up simulation params
-            self.job_requests[id] = self.convert(self.job_requests[id])
+            self.job_requests[id] = self.fill_up_params(self.job_requests[id])
 
     def run_simulation(self):
         for request in self.job_requests:
@@ -146,15 +170,35 @@ class RunPortfolioEvaluation:
                 error(f"{model_str} model was not able to be casted to a model param class")
         return default_models_as_class
 
-    def convert(self, trade_dict: dict):
+    def fill_up_params(self, trade_dict: dict):
         """
         This function should convert the trade_dict to a class instance
         """
         trade_category = trade_dict[self.trade_params_str].get_category()
         underlying_name = trade_dict[self.trade_params_str].underlying
+        id = trade_dict[self.trade_params_str].get_id()
         model = trade_dict[self.simulation_params_str].__class__.__name__.replace("Params", "")
         trade_dict['model'] = model
         sim_params = trade_dict[self.simulation_params_str]
+        assert isinstance(sim_params, BlackScholesParams) or isinstance(sim_params, HestonParams), \
+            "Only BlackScholes and Heston implemented"
+
+        # fetch parameters for simulation: try to get today + underlying. If not possible, use default without a date.
+        # If no database connection is available, use default parameters from json in the repository
+        db_result = None
+        if self.db_status:
+            query = f"SELECT * FROM model_params WHERE date = '{self.today}' AND underlying = '{underlying_name}'"
+            db_result = self.fetch_data(self.db, query)
+            if len(db_result) == 0 or self.has_null_values(db_result[0]):
+                print(f"No specific / enough parameters for trade {id} on date {self.today} found, switching to default")
+                query = "SELECT * FROM model_params WHERE underlying = 'Default'"
+                db_result = self.fetch_data(self.db, query)
+
+            if isinstance(db_result, list):
+                assert len(db_result) == 1, "Exactly one entry expected"
+                db_result = db_result[0]  # convert to dict
+        else:
+            db_result = self.default_params[model]
 
         # Demo implementation for the case stock_option -> BlackScholes TODO
         # Get the most genereal parameters: r, s0, t_start, t_end
@@ -165,14 +209,62 @@ class RunPortfolioEvaluation:
         # Get the model specific parameters
         sim_params.set_r(self.mkd_container.get_today_short_rate())
         if model == "BlackScholes":
+            assert isinstance(sim_params, BlackScholesParams)
             sim_params.set_sigma(self.mkd_container.get_implied_volatility(underlying_name))
+            # Blach scholes does not need any informations from a database as we currently take implied volatility and short term yield curve as parameters
+        elif model == "Heston":
+            assert isinstance(sim_params, HestonParams)
+            sim_params.set_sigma(db_result.get("hs_volvol"))
+            sim_params.set_kappa(db_result.get("hs_kappa"))
+            sim_params.set_theta(db_result.get("hs_theta"))
+            sim_params.set_rho(db_result.get("hs_rho"))
+            sim_params.set_v0(db_result.get("hs_v0"))  # This should be marked data
         else:
             error(f"Model {model} not implemented yet")
         return trade_dict
 
-    def convert_date(self, input_date: str) -> date:
+    @staticmethod
+    def convert_date( input_date: str) -> date:
         given_date = datetime.strptime(input_date, '%Y-%m-%d')
         return date(given_date.year, given_date.month, given_date.day)
 
     def get_portfolio_value(self):
         return self.__portfolio_value
+
+    @staticmethod
+    def connect_to_database(db_params: dict):
+        try:
+            # Establish the connection
+            connection = mysql.connector.connect(
+                host=db_params.get("host"),
+                database=db_params.get("database"),
+                user=db_params.get("user"),
+                password=db_params.get("password")
+            )
+
+            if connection.is_connected():
+                print("Connected to the database")
+                return connection, True
+
+        except Error as e:
+            print(f"Databank conncection failes due to Error: {e}")
+            return None, False
+
+    @staticmethod
+    def fetch_data(db, query: str):
+        try:
+            cursor = db.cursor(dictionary=True)
+            cursor.execute(query)
+            result = cursor.fetchall()
+            cursor.close()
+            return result
+        except Error as e:
+            print(f"Fetching data failed due to Error: {e}")
+            return None
+
+    @staticmethod
+    def has_null_values(data):
+        for key, value in data.items():
+            if value is None:
+                return True
+        return False
