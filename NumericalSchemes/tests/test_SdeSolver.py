@@ -1,8 +1,10 @@
 import unittest
 import matplotlib.pyplot as plt
+import numpy as np
 
 import NumericalSchemes.SdeSolver as solver
 import NumericalSchemes.TimeGrid as timegrid
+from NumericalSchemes.TimeGrid import TimeGrid
 
 
 class SdeSolverTest(unittest.TestCase):
@@ -41,6 +43,23 @@ class SdeSolverTest(unittest.TestCase):
         Testing non-autonomous sde: dX_t = ? dt + ? dW_t
 
         """
+
+    def test_implicit_euler(self):
+        time_grid = TimeGrid(0, 1)
+        drift = lambda t, x: 4 * x
+        diffusion = lambda t, x: 0.001
+        starting_point = 1
+        real_solution = lambda t: np.exp(4 * t)
+        n_steps = 1000
+        sde_solver = solver.SdeSolver(time_grid, drift, diffusion, starting_point)
+        sol = sde_solver.drift_implicit_euler(n_steps)
+        r_sol = real_solution(time_grid.get_time_grid(n_steps))
+        for i in range(len(sol)):
+            self.assertAlmostEqual(sol[i], r_sol[i], delta=0.5)
+        #plt.plot(time_grid.get_time_grid(n_steps), sol, label='implicit')
+        #plt.plot(time_grid.get_time_grid(n_steps), r_sol, label='real')
+        #plt.legend()
+        #plt.show()
 
 
 if __name__ == '__main__':

@@ -1,4 +1,5 @@
 import numpy as np
+from scipy.optimize import fsolve
 
 import NumericalSchemes.RandomProcesses as RP
 import NumericalSchemes.TimeGrid as TimeGrid
@@ -136,14 +137,15 @@ class SdeSolver:
                 assert diffusion_vector[key](2, 2) == diffusion_vector[key](1, 1), "Diffusion is not constant"
         pass
 
-    def drift_implicit_euler(self, nSteps: int, startingPoint=None):
-        time_grid, bm_path, x = self.init_for_schemes(nSteps, startingPoint)
+    def drift_implicit_euler(self, n_steps: int, starting_point=None):
+        assert self.one_dimensional, "Drift implicit Euler only for one dimension"
+        time_grid, bm_path, x = self.init_for_schemes(n_steps, starting_point)
         self.check_for_constant_diffusion()
-        # TODO
-        if not self.one_dimensional:
-            pass
-        else:
-            pass
+        for i in range(1, n_steps):
+            delta_t = time_grid[i] - time_grid[i - 1]
+            delta_W = (bm_path[i] - bm_path[i - 1])
+            fun = lambda y: y - x[i-1] - self.drift(time_grid[i], y) * delta_t - self.diffusion(time_grid[i], y) * delta_W
+            x[i] = fsolve(fun, x[i-1])
         return x
 
     def set_diffustion_derivative(self, diffusion: dict or callable):
