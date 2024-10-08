@@ -8,27 +8,27 @@ class AbstractMarket:
     This class assumes a constant risk-free return rate of the money market account at first.
     For the given timegrid, the risk-free rate can be evaluated at tenor points. TODO: This is not yet implemented
     """
-    def __init__(self, tStart: float, tEnd: float, s0: float, r: float or None):
+    def __init__(self, t_start: float, t_end: float, s0: float, r: float or None):
         """
-        :param tStart: float, start time
-        :param tEnd: float, end time
+        :param t_start: float, start time
+        :param t_end: float, end time
         :param s0: float, initial stock price
         :param r: float, risk-free rate, this will be the constant risk-free return rate of the money market account
         """
-        assert tStart < tEnd, "Start time must be less than end time"
+        assert t_start < t_end, "Start time must be less than end time"
         assert s0 > 0, "Initial stock price must be positive"
         assert r >= 0, "Risk-free rate must be non negative"
         assert s0 > 0, "Initial stock price must be positive"
-        self.t_start = tStart
-        self.t_end = tEnd
-        self.time_grid_instance = TimeGrid(tStart, tEnd)
+        self.t_start = t_start
+        self.t_end = t_end
+        self.time_grid_instance = TimeGrid(t_start, t_end)
         self.s0 = s0
         self.r = r
         self.underlying = {}
         self.dimension = None
-        pass
 
     def reset(self):
+        """Reset instance to initial values"""
         self.__init__(self.t_start, self.t_end, self.s0, self.r)
 
     def get_short_rate(self):
@@ -42,6 +42,7 @@ class AbstractMarket:
 
     def pull_params(self, params):
         pass
+
     def plot_underlying(self):
         keys_underlying = self.underlying.keys()
         time_grid = self.time_grid_instance.get_time_grid(len(self.underlying[list(keys_underlying)[0]]))

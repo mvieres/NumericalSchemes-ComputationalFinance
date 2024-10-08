@@ -1,5 +1,5 @@
 from Market.BlackScholes import BlackScholes
-from Pricing.AmercianMonteCarlo.LongstaffSchwartzMonteCarlo import LongstaffSchwartzMonteCarlo as lsmc
+from Pricing.AmericanMonteCarlo.LongstaffSchwartzMonteCarlo import LongstaffSchwartzMonteCarlo as lsmc
 
 import numpy as np
 import time

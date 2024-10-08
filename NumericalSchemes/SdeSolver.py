@@ -171,6 +171,12 @@ class SdeSolver:
                         ((bm_path[i] - bm_path[i - 1]) ** 2 - delta_t))
         return x
 
+    def heston(self, n_steps, starting_point=None):
+        time_grid, bm_path, x = self.init_for_schemes(n_steps, starting_point)
+        # Get volatility solution
+
+
+
     def leapfrog(self):
         # TODO: sheet 07 ex 3 num_sde
         pass

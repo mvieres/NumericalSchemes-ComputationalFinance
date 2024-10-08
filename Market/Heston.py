@@ -6,6 +6,7 @@ from PortfolioEvaluation.Params.HestonParams import HestonParams
 
 
 class Heston(AbstractMarket):
+    """Simulation of Heston-CIR model (stochastic volatility model)"""
     def __init__(self, t_start: float, t_end: float, s0: float, v0: float,r: float, kappa: float, theta: float, sigma: float, rho: float, scheme: str):
         super().__init__(t_start, t_end, s0, r)
         self.dimension = 2
@@ -31,13 +32,11 @@ class Heston(AbstractMarket):
                                          drift=drift, diffusion=diffustion, starting_point=[s0, v0])
         self.solver_instance.set_order([2, 1])
         self.schemes = {
-            "euler": self.solver_instance.euler,  # TODO: Euler is bullshit for Heston
             "absolute_euler": self.solver_instance.absolute_euler,
         }
-        pass
 
-    def compute_solution_path(self, nSteps: int) -> np.array:
-        return self.schemes[self.scheme](nSteps)
+    def compute_solution_path(self, n_steps: int) -> np.array:
+        return self.schemes[self.scheme](n_steps)
 
     def check_fellercondition(self) -> bool:
         return 2 * self.kappa * self.theta > self.sigma ** 2
@@ -50,9 +49,9 @@ class Heston(AbstractMarket):
         super().plot_underlying()
 
     def pull_params(self, params: HestonParams):
-        self.s0 = params.get_s0()
+        super().s0 = params.get_s0()
         self.v0 = params.get_v0()
-        self.r = params.get_r()
+        super().r = params.get_r()
         self.kappa = params.get_kappa()
         self.theta = params.get_theta()
         self.sigma = params.get_sigma()

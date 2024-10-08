@@ -22,6 +22,17 @@
           "maturity": "2024-12-10",
           "quantity": 1
         }
+    },{
+      "stock_option": {
+        "id": 1113,
+        "underlying": "AAPL",
+        "type": "put",
+        "exercise": "european",
+        "notional_currency": "USD",
+        "strike": 100,
+        "maturity": "2024-12-10",
+        "quantity": 1
+      }
     }
   ],
   "simulation_config": {

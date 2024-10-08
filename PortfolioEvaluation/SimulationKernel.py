@@ -5,7 +5,7 @@ from Market.BlackScholes import BlackScholes
 from Market.Heston import Heston
 from Market.TrolleSchwartz import TrolleSchwartz
 from PortfolioEvaluation.Params.SimConfigParams import SimConfigParams
-from Pricing.AmercianMonteCarlo.LongstaffSchwartzMonteCarlo import LongstaffSchwartzMonteCarlo
+from Pricing.AmericanMonteCarlo.LongstaffSchwartzMonteCarlo import LongstaffSchwartzMonteCarlo
 from Pricing.TheoreticalPrices import BlackScholesOptionPrices
 
 
