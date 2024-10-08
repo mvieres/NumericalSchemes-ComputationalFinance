@@ -12,6 +12,7 @@ class MkdContainerTest(unittest.TestCase):
         self.assertTrue(mkd_container.get_today_short_rate() is not None)
 
     def test_get_spot_price(self):
+        # TODO: there is still a bug
         mkd_container = MkdContainer()
         mkd_container.set_underlying_list(['APPL'])
         mkd_container.load()

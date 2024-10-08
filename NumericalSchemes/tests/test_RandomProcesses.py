@@ -18,6 +18,7 @@ class RandomProcessesTest(unittest.TestCase):
         bb = RP.RandomProcesses.brownian_motion_path(timeGridInstance, 3, dimension=1, seed=1)
         self.assertTrue(np.array_equal(bb, theoretical_value))
 
+    @unittest.skip("Plot for visual inspection")
     def test_generateMultipleBM(self):
         np.random.seed(100)
         time_grid_instance = TimeGrid.TimeGrid(0, 1)
@@ -40,6 +41,7 @@ class RandomProcessesTest(unittest.TestCase):
         # p_value > 0.05 means that H_0 (Normal(0,1) distribution) can not be rejected at the 5% level
         self.assertTrue(p_value > 0.05)
 
+    @unittest.skip("Plot for visual inspection")
     def test_multidimesnisonal_brownian_motion(self):
         timeGridInstance = TimeGrid.TimeGrid(0, 10)
         n_steps = 1000
@@ -47,6 +49,7 @@ class RandomProcessesTest(unittest.TestCase):
         plt.plot(bb[:, 0], bb[:, 1])
         plt.show()
 
+    @unittest.skip("Plot for visual inspection")
     def test_3d_brownian_motion(self):
         timeGridInstance = TimeGrid.TimeGrid(0, 10)
         n_steps = 1000

@@ -3,12 +3,13 @@ import matplotlib.pyplot as plt
 import numpy as np
 
 import NumericalSchemes.SdeSolver as solver
-import NumericalSchemes.TimeGrid as timegrid
+import NumericalSchemes.TimeGrid as timegrid  # TODO: What is this?
 from NumericalSchemes.TimeGrid import TimeGrid
 
 
 class SdeSolverTest(unittest.TestCase):
 
+    @unittest.skip("Plot for visual inspection")
     def test_EulerMultiDimensional(self):
         """
         dX_1 = t*X_1 dt + X_2 dW_1 + X_2^2 dW_2
@@ -25,6 +26,7 @@ class SdeSolverTest(unittest.TestCase):
         plt.plot(time_grid_instance.get_time_grid(100), solution[:, 1])
         plt.show()
 
+    @unittest.skip("Plot for visual inspection")
     def test_EulerOneDimensional_1(self):
         """
         Testing black scholes: dX_t = mue*X dt + sigma*X dW_t (autonomous sde)

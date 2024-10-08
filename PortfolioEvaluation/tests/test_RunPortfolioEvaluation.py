@@ -16,6 +16,7 @@ class RunPortfolioEvaluationTest(unittest.TestCase):
         except Exception as e:
             self.fail(e)
 
+
     def test_process_default_models(self):
         runner_instance = RunPortfolioEvaluation(portfolio_name='C:/Users/pkv4e/Documents/GitHub/NumericalSchemes-ComputationalFinance/PortfolioEvaluation/portfolio.json')
         default_dict = {

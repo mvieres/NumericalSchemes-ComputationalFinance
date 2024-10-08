@@ -8,6 +8,7 @@ from Market.BlackScholes import BlackScholes
 
 class BlackScholesTest(unittest.TestCase):
 
+    @unittest.skip("Plot for visual inspection")
     def test_init(self):
         blackscholes_instance = BlackScholes(0, 5, 100, 0.01, 0.5, "milstein")
         blackscholes_instance.generate_scenarios(8, 1000)
@@ -36,12 +37,12 @@ class BlackScholesTest(unittest.TestCase):
         for key in blackscholes_instance.scenarios.keys():
             price_vector[key] = blackscholes_instance.scenarios[key][-1]
         test_result, pvalue = sc.stats.kstest(price_vector, np.random.lognormal(mean=((r-(sigma**2)/2)*t_end), sigma=(sigma ** 2) * t_end, size=n_paths))
-        theoretical_values = np.random.lognormal(mean=((r-(sigma**2)/2)*t_end), sigma=(sigma ** 2) * t_end, size=n_paths)
-        plt.hist(price_vector, bins=100)
-        xmin, xmax = plt.xlim()
-        x = np.linspace(xmin, xmax, 100)
-        plt.plot(x, theoretical_values, 'k', linewidth=2)
-        plt.show()
+        #theoretical_values = np.random.lognormal(mean=((r-(sigma**2)/2)*t_end), sigma=(sigma ** 2) * t_end, size=n_paths)
+        #plt.hist(price_vector, bins=100)
+        #xmin, xmax = plt.xlim()
+        #x = np.linspace(xmin, xmax, 100)
+        #plt.plot(x, theoretical_values, 'k', linewidth=2)
+        #plt.show()
         self.assertGreaterEqual(pvalue, 0.05)  # If p-value is lower than 0.05, the distribution hypothesis is rejected
 
 
