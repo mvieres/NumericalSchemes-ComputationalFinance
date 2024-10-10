@@ -233,7 +233,6 @@ class RunPortfolioEvaluation:
 
     @staticmethod
     def connect_to_database(db_params: dict):
-        # TODO: this does not work as intended -> Throws connection error
         try:
             # Establish the connection
             connection = mysql.connector.connect(
