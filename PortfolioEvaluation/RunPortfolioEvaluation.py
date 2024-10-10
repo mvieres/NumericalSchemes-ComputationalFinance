@@ -1,6 +1,6 @@
 import json
 import mysql.connector
-from mysql.connector import Error
+from mysql.connector import Error as mysqlError
 from datetime import date, datetime
 from webbrowser import Error
 
@@ -233,6 +233,7 @@ class RunPortfolioEvaluation:
 
     @staticmethod
     def connect_to_database(db_params: dict):
+        # TODO: this does not work as intended -> Throws connection error
         try:
             # Establish the connection
             connection = mysql.connector.connect(
@@ -246,8 +247,17 @@ class RunPortfolioEvaluation:
                 print("Connected to the database")
                 return connection, True
 
-        except Error as e:
-            print(f"Databank conncection failes due to Error: {e}")
+        except mysqlError as e:
+            print(f"Databank conncection failes due to Error: {e}, switching to default parameters from repository-json")
+            # Handle specific error codes if needed
+            if e.errno == 2003:  # Error: Can't connect to MySQL server on 'host'
+                print("Could not connect to MySQL server.")
+            elif e.errno == 1045:  # Error: Access denied for user
+                print("Access denied. Check your username and password.")
+            elif e.errno == 1049:  # Error: Unknown database
+                print("Database does not exist. Check your database name.")
+            else:
+                print("An unknown error occurred.")
             return None, False
 
     @staticmethod
