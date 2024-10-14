@@ -2,7 +2,7 @@ from logging import error
 import numpy as np
 
 from Market.BlackScholes import BlackScholes
-from Market.Heston import Heston
+from Market.HestonCIR import HestonCIR
 from Market.TrolleSchwartz import TrolleSchwartz
 from PortfolioEvaluation.Params.SimConfigParams import SimConfigParams
 from Pricing.AmericanMonteCarlo.LongstaffSchwartzMonteCarlo import LongstaffSchwartzMonteCarlo
@@ -21,7 +21,7 @@ class SimulationKernel:
         self.models = {
             "BlackScholes": BlackScholes(0, 1, 1, 0, 0, 'euler', 'exposure'),
             "TrolleSchwartz": TrolleSchwartz(0, 1, 0, 0, 0, 0, 0 ,0, 0),
-            "Heston": Heston(0, 1, 1, 0.1, 0, 1, 1, 1, 0.5, 'euler')
+            "Heston": HestonCIR(0, 1, 1, 0.1, 0, 1, 1, 1, 0.5, 'absolute_euler')
         }
 
     def set_job_request(self, job_request):

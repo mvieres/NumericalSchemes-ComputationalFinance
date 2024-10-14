@@ -6,7 +6,7 @@ from datetime import date
 
 ticker = yf.Ticker('AAPL')
 interest = yf.Ticker("^IRX")
-expiration_date = '2024-09-27'
+expiration_date = '2024-11-01'
 
 # Fetch the call options
 calls = ticker.option_chain(expiration_date).calls

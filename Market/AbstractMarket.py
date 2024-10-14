@@ -44,6 +44,9 @@ class AbstractMarket:
         pass
 
     def plot_underlying(self):
+        """
+        Plot the underlying asset, for stochastic volatility models, the volatility is NOT plotted
+        """
         keys_underlying = self.underlying.keys()
         time_grid = self.time_grid_instance.get_time_grid(len(self.underlying[list(keys_underlying)[0]]))
 
@@ -59,7 +62,7 @@ class AbstractMarket:
         else:
             raise ValueError("Something went wrong with the implementation")
         plt.xlabel("Time")
-        plt.ylabel("Price")
+        plt.ylabel("underlying price")
         plt.show()
 
     def set_r(self, r):

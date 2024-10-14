@@ -2,7 +2,7 @@ import numpy as np
 import scipy.special as ss
 
 from Market.BlackScholes import BlackScholes
-from Market.Heston import Heston
+from Market.HestonCIR import HestonCIR
 from Market.TrolleSchwartz import TrolleSchwartz
 
 
@@ -12,7 +12,7 @@ class LongstaffSchwartzMonteCarlo:
     TODO: Implement path-dependent options
     """
 
-    def __init__(self, underlying_instance: BlackScholes or Heston or TrolleSchwartz,
+    def __init__(self, underlying_instance: BlackScholes or HestonCIR or TrolleSchwartz,
                  payoff: callable, n_paths: int, n_steps: int):
         self.underlying_instance = underlying_instance
         self.n_paths = n_paths

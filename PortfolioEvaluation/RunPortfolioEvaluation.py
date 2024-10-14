@@ -211,7 +211,7 @@ class RunPortfolioEvaluation:
         if model == "BlackScholes":
             assert isinstance(sim_params, BlackScholesParams)
             sim_params.set_sigma(self.mkd_container.get_implied_volatility(underlying_name))
-            # Blach scholes does not need any informations from a database as we currently take implied volatility and short term yield curve as parameters
+            # TODO: for now bs uses implied volatility
         elif model == "Heston":
             assert isinstance(sim_params, HestonParams)
             sim_params.set_sigma(db_result.get("hs_volvol"))

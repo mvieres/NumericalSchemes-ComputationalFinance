@@ -33,15 +33,15 @@ class RandomProcessesTest(unittest.TestCase):
         n_steps = 1000
         bb = RP.RandomProcesses.multiple_brownian_motion_paths(timeGridInstance, 10000, n_steps, 1)
         end_values = np.array([bb[i][-1] for i in range(len(bb.keys()))])
-        #plt.hist(end_values, bins=100)
-        #plt.show()
-        #stats.probplot(end_values, dist="norm", plot=plt)
-        #plt.show()
+        plt.hist(end_values, bins=100)
+        plt.show()
+        stats.probplot(end_values, dist="norm", plot=plt)
+        plt.show()
         statistics, p_value = stats.kstest(end_values, 'norm', args=(0, np.sqrt(1)))
         # p_value > 0.05 means that H_0 (Normal(0,1) distribution) can not be rejected at the 5% level
         self.assertTrue(p_value > 0.05)
 
-    @unittest.skip("Plot for visual inspection")
+    #@unittest.skip("Plot for visual inspection")
     def test_multidimesnisonal_brownian_motion(self):
         timeGridInstance = TimeGrid.TimeGrid(0, 10)
         n_steps = 1000

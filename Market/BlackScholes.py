@@ -1,3 +1,4 @@
+from NumericalSchemes.RandomProcesses import RandomProcesses
 from NumericalSchemes.SdeSolver import SdeSolver
 from Market.AbstractMarket import AbstractMarket
 
@@ -15,6 +16,7 @@ class BlackScholes(AbstractMarket):
         self.t_start = t_start
         self.t_end = t_end
         super().__init__(t_start, t_end, s0, r)
+        self.s0 = s0
         self.dimension = 1
         assert sigma >= 0, "Volatility must be non negative"
         self.sigma = sigma
@@ -24,7 +26,7 @@ class BlackScholes(AbstractMarket):
         if sim_type == "normal":
             self.drift = lambda t, x: r * x
         else:
-            self.drift = lambda t, x: (r - 0.5*sigma**2) * x
+            self.drift = lambda t, x: r * x
         self.diffusion = lambda t, x: self.sigma * x
         self.diffusion_derivative = lambda t, x: self.sigma
         self.solver_instance = SdeSolver(time_grid_instance=self.time_grid_instance,
@@ -45,8 +47,17 @@ class BlackScholes(AbstractMarket):
         for i in range(n_paths):
             self.scenarios[i] = self.compute_solution_path(n_steps)
 
-    def plot_underlying(self):
-        super().plot_underlying()
+    def compute_solution_path_exact(self, n_steps):
+        bm = RandomProcesses.brownian_motion_path(self.time_grid_instance, n_steps, 1)
+        x = np.zeros(n_steps)
+        x[0] = self.s0
+        for i in range(1, n_steps):
+            x[i] = self.s0 * np.exp((self.r - 0.5 * self.sigma ** 2) * self.time_grid_instance.get_time_grid(n_steps)[i] + self.sigma * bm[i])
+        return x
+
+    def generate_scenarios_exact(self, n_paths: int, n_steps: int) -> None:
+        for i in range(n_paths):
+            self.scenarios[i] = self.compute_solution_path_exact(n_steps)
 
     def get_sigma(self):
         return self.sigma

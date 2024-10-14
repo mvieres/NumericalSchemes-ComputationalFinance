@@ -26,6 +26,8 @@ class SdeSolver:
                  starting_point: np.array or float, order_dimensions=None):
         self.time_grid_instance = time_grid_instance
         self.dimension = None
+        self.diffusion_derivative = None
+        self.seed = None
         self.drift = drift
         self.diffusion = diffusion
         self.starting_point = starting_point
@@ -43,6 +45,9 @@ class SdeSolver:
             raise ValueError("Input error: Drift and diffusion have to be either callable or dict")
         pass
 
+    def set_random_seed(self, seed: int) -> None:
+        self.seed = seed
+
     def set_order(self, order_dimensions: list) -> None:
         self.order_dimensions = order_dimensions
 
@@ -54,6 +59,10 @@ class SdeSolver:
         return dim
 
     def calculate_diffusion_euler(self, dimension: int, bm_increment, time, space):
+        """
+        Calculate the diffusion term for the Euler and Absolute Euler scheme. This method can be extended for other
+        schemes if needed.
+        """
         diffusion_vector = self.diffusion[dimension]
         diffusion_keys = diffusion_vector.keys()
         diffusion_evaluated = 0
@@ -62,19 +71,22 @@ class SdeSolver:
         return diffusion_evaluated
 
     def init_for_schemes(self, n_steps: int, bm_path=None, starting_point=None):
-        assert n_steps > 1, "nSteps has to be bigger than 1"
-        timeGrid = self.time_grid_instance.get_time_grid(n_steps)
+        """
+        Initialize the time grid, Brownian motion path (if not supplied) and the state variable for the numerical schemes
+        """
+        assert n_steps > 1, "n_steps has to be bigger than 1"
+        time_grid = self.time_grid_instance.get_time_grid(n_steps)
         if bm_path is None:
             bm_path = RP.RandomProcesses.brownian_motion_path(time_grid_instance=self.time_grid_instance,
-                                                              n_steps=n_steps, dimension=self.dimension)
+                                                              n_steps=n_steps, dimension=self.dimension, seed=self.seed)
         if starting_point is not None:
             self.starting_point = starting_point  # Update new starting point
             self.dimension = self.get_dimension(starting_point)
         else:
             starting_point = self.starting_point
         x = Utils.Utils.initForProcesses(self.dimension, n_steps)
-        x[0] = starting_point  # initial condition
-        return timeGrid, bm_path, x
+        x[0] = starting_point
+        return time_grid, bm_path, x
 
     def euler_1d(self,n_steps, time_grid, bm_path, x):
         for i in range(1, n_steps):
@@ -110,19 +122,23 @@ class SdeSolver:
 
     def absolut_euler_1d(self, n_steps, time_grid, bm_path, x):
         for i in range(1, n_steps):
-            x[i] = (x[i - 1] + np.abs(self.drift(time_grid[i - 1], x[i - 1]) * (time_grid[i] - time_grid[i - 1])
-                    + self.diffusion(time_grid[i - 1], x[i - 1]) * (bm_path[i] - bm_path[i - 1])))
+            x[i] = np.abs(x[i - 1] + self.drift(time_grid[i - 1], x[i - 1]) * (time_grid[i] - time_grid[i - 1])
+                    + self.diffusion(time_grid[i - 1], x[i - 1]) * (bm_path[i] - bm_path[i - 1]))
         return x
 
     def absolute_euler_multi_d(self, n_steps, time_grid, bm_path, x):
         for i in range(1, n_steps):
             for dimension in self.order_dimensions: # TODO: make sure order_dimension works here
                 dim_index = dimension - 1
-                x[i][dim_index] = (x[i - 1][dim_index] + np.abs(self.drift[dimension](time_grid[i - 1], x[i - 1]) * (time_grid[i] - time_grid[i - 1]) + self.calculate_diffusion_euler(dimension, bm_path[i] - bm_path[i - 1], time_grid[i - 1], x[i - 1])))
+                x[i][dim_index] = np.abs(x[i - 1][dim_index] +
+                                   self.drift[dimension](time_grid[i - 1], x[i - 1]) *
+                                          (time_grid[i] - time_grid[i - 1]) +
+                                          self.calculate_diffusion_euler(dimension, bm_path[i] - bm_path[i - 1],
+                                                                         time_grid[i - 1], x[i - 1]))
         return x
 
-    def absolute_euler(self, n_steps: int, startingPoint=None):
-        time_grid, bm_path, x = self.init_for_schemes(n_steps, startingPoint)
+    def absolute_euler(self, n_steps: int, startingPoint=None, bm_path=None):
+        time_grid, bm_path, x = self.init_for_schemes(n_steps, bm_path, startingPoint)
         if not self.one_dimensional:
             x = self.absolute_euler_multi_d(n_steps, time_grid, bm_path, x)
         else:
@@ -137,32 +153,30 @@ class SdeSolver:
                 assert diffusion_vector[key](2, 2) == diffusion_vector[key](1, 1), "Diffusion is not constant"
         pass
 
-    def drift_implicit_euler(self, n_steps: int, starting_point=None):
+    def drift_implicit_euler(self, n_steps: int, starting_point=None, bm_path=None):
         assert self.one_dimensional, "Drift implicit Euler only for one dimension"
-        time_grid, bm_path, x = self.init_for_schemes(n_steps, starting_point)
+        time_grid, bm_path, x = self.init_for_schemes(n_steps, bm_path, starting_point)
         self.check_for_constant_diffusion()
         for i in range(1, n_steps):
             delta_t = time_grid[i] - time_grid[i - 1]
-            delta_W = (bm_path[i] - bm_path[i - 1])
-            fun = lambda y: y - x[i-1] - self.drift(time_grid[i], y) * delta_t - self.diffusion(time_grid[i], y) * delta_W
+            delta_w = (bm_path[i] - bm_path[i - 1])
+            fun = lambda y: y - x[i-1] - self.drift(time_grid[i], y) * delta_t - self.diffusion(time_grid[i], y) * delta_w
             x[i] = fsolve(fun, x[i-1])
         return x
 
     def set_diffustion_derivative(self, diffusion: dict or callable):
-        if isinstance(diffusion, dict):
-            self.diffusion_derivative = diffusion
-        elif callable(diffusion):
+        if isinstance(diffusion, dict) or callable(diffusion):
             self.diffusion_derivative = diffusion
         else:
             raise ValueError("Diffusion derivative has to be either callable or dict")
 
-    def milstein(self, nSteps: int, startingPoint=None) -> np.array:
-        time_grid, bm_path, x = self.init_for_schemes(nSteps, startingPoint)
+    def milstein(self, n_steps: int, startingPoint=None, bm_path=None) -> np.array:
+        time_grid, bm_path, x = self.init_for_schemes(n_steps, bm_path, startingPoint)
         if not self.one_dimensional:
-            pass  # TODO
+            pass
         else:
             assert callable(self.diffusion_derivative), "Diffusion derivative has to be callable"
-            for i in range(1, nSteps):
+            for i in range(1, n_steps):
                 delta_t = time_grid[i] - time_grid[i-1]
                 x[i] = (x[i - 1] + self.drift(time_grid[i - 1], x[i - 1]) * delta_t +
                         self.diffusion(time_grid[i - 1], x[i - 1]) * (bm_path[i] - bm_path[i - 1])
@@ -171,11 +185,16 @@ class SdeSolver:
                         ((bm_path[i] - bm_path[i - 1]) ** 2 - delta_t))
         return x
 
-    def heston(self, n_steps, starting_point=None):
-        time_grid, bm_path, x = self.init_for_schemes(n_steps, starting_point)
-        # Get volatility solution
+    def milstein_multi_d(self, n_steps, time_grid, bm_path, x):
 
-
+        for i in range(1, n_steps):
+            for dimension in self.order_dimensions:
+                dim_index = dimension - 1
+                delta_t = time_grid[i] - time_grid[i - 1]
+                delta_w = (bm_path[i] - bm_path[i - 1])
+                x[i][dim_index] = (x[i-1][dim_index] + self.drift[dimension](time_grid[i - 1], x[i - 1]) * delta_t +0)
+                #TODO implement correct diffusion evaluation with ito-integral and diffusion derivative
+        raise NotImplementedError("Milstein for multidimensional SDE not implemented yet")
 
     def leapfrog(self):
         # TODO: sheet 07 ex 3 num_sde

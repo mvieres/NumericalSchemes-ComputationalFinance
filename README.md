@@ -21,6 +21,7 @@ Numerical methods for stochastic processes are crucial, with the Euler-Maruyama 
 However, when dealing with random processes, particularly Brownian motion (which has low regularity), the speed of convergence for numerical schemes is limited by the discretization of the Brownian motion itself. As a result, the Euler-Maruyama scheme is often preferred, though variations derived from Euler's method are useful in specialized cases.
 
 This module offers a collection of the most relevant schemes and approaches to handle a wide range of problems. Further details on these schemes and their theoretical foundations will be included in the methodological documentation (still in progress).
+Note, that the Heston SDE is typically solved by using different schemes for each dimension. Hence, the "solver" for that model is directly coded in Heston.py instead of SDESolver.py.
 
 ## Monte Carlo
 The MonteCarlo module implements the Multi-Level Monte Carlo (MLMC) method. Since the basic Monte Carlo estimator is simply the standard expectation estimator, no additional module is needed for this standard case.

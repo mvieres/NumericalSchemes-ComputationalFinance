@@ -3,7 +3,7 @@ import numpy as np
 
 from Pricing.AmericanMonteCarlo.LongstaffSchwartzMonteCarlo import LongstaffSchwartzMonteCarlo as lsmc
 from Market.BlackScholes import BlackScholes
-from Market.Heston import Heston
+from Market.HestonCIR import HestonCIR
 from Pricing.TheoreticalPrices import BlackScholesOptionPrices
 
 
