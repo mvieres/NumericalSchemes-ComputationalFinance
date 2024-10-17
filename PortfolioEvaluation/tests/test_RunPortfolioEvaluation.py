@@ -1,7 +1,7 @@
 import unittest
 
 from PortfolioEvaluation.Params.BlackScholesParams import BlackScholesParams
-from PortfolioEvaluation.Params.HestonParams import HestonParams
+from PortfolioEvaluation.Params.HestonCIRParams import HestonCIRParams
 from PortfolioEvaluation.Params.StockOptionParams import StockOptionParams
 from PortfolioEvaluation.Params.TrolleSchwartzParams import TrolleSchwartzParams
 from PortfolioEvaluation.RunPortfolioEvaluation import RunPortfolioEvaluation
@@ -26,7 +26,7 @@ class RunPortfolioEvaluationTest(unittest.TestCase):
         supposed_dict = {
             "stock_option": BlackScholesParams(),
             "interest_rate": TrolleSchwartzParams(),
-            "foreign_exchange": HestonParams(),
+            "foreign_exchange": HestonCIRParams(),
         }
         result = runner_instance.process_default_models(default_dict)
         for key in result.keys():

@@ -8,7 +8,7 @@ from logging import error, ERROR
 
 from MarketDataContainer.MkdContainer import MkdContainer
 from PortfolioEvaluation.Params.BlackScholesParams import BlackScholesParams
-from PortfolioEvaluation.Params.HestonParams import HestonParams
+from PortfolioEvaluation.Params.HestonCIRParams import HestonCIRParams
 from PortfolioEvaluation.Params.SimConfigParams import SimConfigParams
 from PortfolioEvaluation.Params.StockOptionParams import StockOptionParams
 from PortfolioEvaluation.Params.TrolleSchwartzParams import TrolleSchwartzParams
@@ -159,7 +159,7 @@ class RunPortfolioEvaluation:
         model_mapping = {
             "BlackScholes": BlackScholesParams,
             "TrolleSchwartz": TrolleSchwartzParams,
-            "Heston": HestonParams
+            "Heston": HestonCIRParams
         }
         default_models_as_class = {}
         for key, model_str in default_models_as_str.items():
@@ -180,7 +180,7 @@ class RunPortfolioEvaluation:
         model = trade_dict[self.simulation_params_str].__class__.__name__.replace("Params", "")
         trade_dict['model'] = model
         sim_params = trade_dict[self.simulation_params_str]
-        assert isinstance(sim_params, BlackScholesParams) or isinstance(sim_params, HestonParams), \
+        assert isinstance(sim_params, BlackScholesParams) or isinstance(sim_params, HestonCIRParams), \
             "Only BlackScholes and Heston implemented"
 
         # fetch parameters for simulation: try to get today + underlying. If not possible, use default without a date.
@@ -213,7 +213,7 @@ class RunPortfolioEvaluation:
             sim_params.set_sigma(self.mkd_container.get_implied_volatility(underlying_name))
             # TODO: for now bs uses implied volatility
         elif model == "Heston":
-            assert isinstance(sim_params, HestonParams)
+            assert isinstance(sim_params, HestonCIRParams)
             sim_params.set_sigma(db_result.get("hs_volvol"))
             sim_params.set_kappa(db_result.get("hs_kappa"))
             sim_params.set_theta(db_result.get("hs_theta"))
