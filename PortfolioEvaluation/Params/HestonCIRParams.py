@@ -1,7 +1,7 @@
 from PortfolioEvaluation.Params.AbstractModelParams import AbstractModelParams
 
 
-class HestonParams(AbstractModelParams):
+class HestonCIRParams(AbstractModelParams):
 
     def __init__(self):
         super().__init__()
@@ -11,7 +11,6 @@ class HestonParams(AbstractModelParams):
         self.kappa = None
         self.theta = None
         self.rho = None
-        pass
 
     def from_dict(self, data):
         self.r = data.get('r')

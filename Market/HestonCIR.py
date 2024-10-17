@@ -2,7 +2,7 @@ import numpy as np
 
 from Market.AbstractMarket import AbstractMarket
 from NumericalSchemes.SdeSolver import SdeSolver
-from PortfolioEvaluation.Params.HestonParams import HestonParams
+from PortfolioEvaluation.Params.HestonCIRParams import HestonCIRParams
 
 
 class HestonCIR(AbstractMarket):
@@ -48,7 +48,7 @@ class HestonCIR(AbstractMarket):
     #def plot_underlying(self):
      #   super().plot_underlying()
 
-    def pull_params(self, params: HestonParams):
+    def pull_params(self, params: HestonCIRParams):
         super().s0 = params.get_s0()
         self.v0 = params.get_v0()
         super().r = params.get_r()

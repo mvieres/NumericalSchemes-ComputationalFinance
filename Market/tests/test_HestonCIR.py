@@ -23,15 +23,16 @@ class HestonCIRTest(unittest.TestCase):
         heston_instance.generate_scenarios(1, 1000)
         heston_instance.plot_underlying()
 
+    @unittest.skip("Plot for visual inspection")
     def test_compute_solution_old(self):
         t_start = 0
         t_end = 1
         s0 = 100
-        v0 = 1
+        v0 = 10
         r = 0.1
-        kappa = 0.1
-        theta = 1
-        sigma = 0.6
+        kappa = 1
+        theta = 10
+        sigma = 2
         rho = 0.2
         scheme = "absolute_euler"
         heston_instance = HestonCIR(t_start, t_end, s0, v0, r, kappa, theta, sigma, rho, scheme)
