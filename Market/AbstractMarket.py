@@ -43,7 +43,7 @@ class AbstractMarket:
     def pull_params(self, params):
         pass
 
-    def plot_underlying(self):
+    def plot_underlying(self, legend=False):
         """
         Plot the underlying asset, for stochastic volatility models, the volatility is NOT plotted
         """
@@ -63,6 +63,8 @@ class AbstractMarket:
             raise ValueError("Something went wrong with the implementation")
         plt.xlabel("Time")
         plt.ylabel("underlying price")
+        if legend:
+            plt.legend()
         plt.show()
 
     def set_r(self, r):
