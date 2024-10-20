@@ -30,6 +30,15 @@ for key in time_series.keys():
 plt.plot(bs_instance.time_grid_instance.get_time_grid(n_steps)[:-1], returns[0], label="Lagged time series")
 plt.show()
 
+
+"""
+For Black scholes we have d S_t = r S_t dt + sigma S_t dW_t
+Bluntly written, it is d S_t / S_t = r dt + sigma dW_t
+Variance over the sample path is then 
+"""
+
+
+
 # Compare implied volatility with variance
 for i in time_series.keys():
     print(f"Variance of original time series is: {np.var(time_series[i])}, variance of lagged series is {np.var(returns[i])}, variance of relative returns is {np.var(relative_returns[i])}")
