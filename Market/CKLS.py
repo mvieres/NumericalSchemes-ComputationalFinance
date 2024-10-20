@@ -13,6 +13,7 @@ class CKLS(AbstractMarket):
         self.theta = theta
         self.gamma = gamma
         self.scheme = scheme
+        self.dimension = 1
         self.scenarios = {}
         if self.scheme == "drift_implicid_euler":
             self.drift = lambda t, x: (1-self.gamma) * (self.kappa * self.theta * x**(-self.gamma / (1-self.gamma)) - self.kappa*x - ((self.gamma*self.sigma**2 / 2) * x**(-1)))
@@ -26,6 +27,7 @@ class CKLS(AbstractMarket):
             "absolute_euler": self.solver_instance.absolute_euler,
             #"drift_implicid_euler": self.solver_instance.drift_implicit_euler, Turned off for the moment
         }
+        self.underlying = self.scenarios
         assert scheme in self.schemes.keys(), "The scheme is not valid"
 
     def compute_solution_path(self, n_steps: int) -> np.array:

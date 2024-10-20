@@ -62,7 +62,7 @@ class AbstractMarket:
         else:
             raise ValueError("Something went wrong with the implementation")
         plt.xlabel("Time")
-        plt.ylabel("underlying price")
+        plt.ylabel("Underlying")
         if legend:
             plt.legend()
         plt.show()

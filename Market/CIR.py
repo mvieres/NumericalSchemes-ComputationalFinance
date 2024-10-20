@@ -19,6 +19,8 @@ class CIR(AbstractMarket):
         self.schemes = {
             "absolute_euler": self.solver_instance.absolute_euler,
         }
+        self.underlying = self.scenarios
+        self.dimension = 1
         assert scheme in self.schemes.keys(), "The scheme is not valid"
 
     def compute_solution_path(self, n_steps: int) -> np.array:
