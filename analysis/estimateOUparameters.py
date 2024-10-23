@@ -3,7 +3,6 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 from NumericalSchemes.TimeGrid import TimeGrid
-from NumericalSchemes.RandomProcesses import RandomProcesses
 from NumericalSchemes.SdeSolver import SdeSolver
 
 # 1. Create a time grid
@@ -17,11 +16,12 @@ sigma = 1
 dirft = lambda t, x: theta*(mu - x)
 diffusion = lambda t, x: sigma
 
-nPaths = 10
+nPaths = 1000
 nSteps = 1000
 ouPaths = {}
+solver_instance = SdeSolver(timeGrid, dirft, diffusion, 0)
 for numberPath in range(nPaths):
-    ouPaths[numberPath] = SdeSolver.euler(timeGrid, nSteps, 0, dirft, diffusion)
+    ouPaths[numberPath] = solver_instance.euler(nSteps)
 # 3. OLS Regression of each time point
 esitmatesTheta = np.zeros((nSteps-3, 1))
 

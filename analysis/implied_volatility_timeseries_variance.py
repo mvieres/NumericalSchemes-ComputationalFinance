@@ -9,7 +9,7 @@ The script showcases the difference between the parameter sigma in Black Scholes
 # Generate Black Scholes market data
 
 sigma = 0.5
-r = 0.1
+r = 0
 s0 = 100
 t_start = 0
 t_end = 1
@@ -22,14 +22,15 @@ bs_instance.plot_underlying(legend=True)
 
 # Lagged time series
 time_series = bs_instance.scenarios
+dt = bs_instance.time_grid_instance.get_time_grid(n_steps)[1] - bs_instance.time_grid_instance.get_time_grid(n_steps)[0]
 returns = {}
 relative_returns = {}
 for key in time_series.keys():
-    returns[key] = time_series[key][1:] - time_series[key][:-1]
-    relative_returns = returns[key] / time_series[key][:-1] # This is not right
-plt.plot(bs_instance.time_grid_instance.get_time_grid(n_steps)[:-1], returns[0], label="Lagged time series")
-plt.show()
-
+    returns = np.log(time_series[key][1:] / time_series[key][:-1])
+#plt.plot(bs_instance.time_grid_instance.get_time_grid(n_steps)[:-1], returns[0], label="Lagged time series")
+#plt.show()
+var_log_returns = np.var(returns)
+sigma_estimated = np.sqrt(var_log_returns/dt)
 
 """
 For Black scholes we have d S_t = r S_t dt + sigma S_t dW_t
@@ -41,4 +42,4 @@ Variance over the sample path is then
 
 # Compare implied volatility with variance
 for i in time_series.keys():
-    print(f"Variance of original time series is: {np.var(time_series[i])}, variance of lagged series is {np.var(returns[i])}, variance of relative returns is {np.var(relative_returns[i])}")
+    print(f"Estimated volatility parameter sigma is: {sigma_estimated} and the parameter sigma is: {sigma}")
