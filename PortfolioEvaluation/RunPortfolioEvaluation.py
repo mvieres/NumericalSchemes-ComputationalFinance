@@ -2,7 +2,7 @@ import json
 import mysql.connector
 from mysql.connector import Error as mysqlError
 from datetime import date, datetime
-from webbrowser import Error
+from webbrowser import Error  # TODO: is this the right error category for fetching data from mysql?
 
 from logging import error, ERROR
 
@@ -72,7 +72,7 @@ class RunPortfolioEvaluation:
         try:
             with open("C:/Users/pkv4e/Documents/GitHub/NumericalSchemes-ComputationalFinance/PortfolioEvaluation/Params/BlackScholesDefault.json", 'r') as file:
                 self.default_params["BlackScholes"] = json.load(file)
-            with open("C:/Users/pkv4e/Documents/GitHub/NumericalSchemes-ComputationalFinance/PortfolioEvaluation/Params/BlackScholesDefault.json", 'r') as file:
+            with open("C:/Users/pkv4e/Documents/GitHub/NumericalSchemes-ComputationalFinance/PortfolioEvaluation/Params/HestonDefault.json", 'r') as file:
                 self.default_params["Heston"] = json.load(file)
         except Exception as e:
             print(f"Default parameters could not be loaded due to Error: {e}")

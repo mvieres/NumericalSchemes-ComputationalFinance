@@ -23,7 +23,7 @@ class AbstractMarket:
         self.t_end = t_end
         self.time_grid_instance = TimeGrid(t_start, t_end)
         self.s0 = s0
-        self.r = r
+        self.r = r  # TODO: this use of short rate can get very difficult to handle if the short rate is initilaized with 0, which it is at some places.
         self.underlying = {}
         self.dimension = None
 

@@ -63,7 +63,7 @@ class SimulationKernel:
                 payoff = lambda x: np.maximum(x - trade_params.get_strike(), 0)
             else:
                 raise ValueError("Option type not implemented / Payoff error")
-            lsm_instance = LongstaffSchwartzMonteCarlo(model_instance, payoff,
+            lsm_instance = LongstaffSchwartzMonteCarlo(model_instance, payoff, "path_independent",
                                                        self.general_sim_params.n_paths,
                                                        self.general_sim_params.discretization)
             lsm_instance.compute_option_price()

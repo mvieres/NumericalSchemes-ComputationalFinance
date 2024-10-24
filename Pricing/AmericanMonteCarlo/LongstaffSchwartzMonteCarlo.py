@@ -3,22 +3,23 @@ import scipy.special as ss
 
 from Market.BlackScholes import BlackScholes
 from Market.HestonCIR import HestonCIR
-from Market.TrolleSchwartz import TrolleSchwartz
+from Market.HestonCKLS import HestonCKLS
 
 
 class LongstaffSchwartzMonteCarlo:
     """
-    AMC for american Put and Call Options (path-independent).
-    TODO: Implement path-dependent options
+    AMC for american Put and Call Options .
     """
 
-    def __init__(self, underlying_instance: BlackScholes or HestonCIR or TrolleSchwartz,
-                 payoff: callable, n_paths: int, n_steps: int):
+    def __init__(self, underlying_instance: BlackScholes or HestonCIR or HestonCKLS,
+                 payoff: callable, payoff_type: str, n_paths: int, n_steps: int):
         self.underlying_instance = underlying_instance
         self.n_paths = n_paths
         self.n_steps = n_steps
         self.__check_for_market_scenarios()
         self.payoff = payoff
+        self.payoff_type = payoff_type
+        assert payoff_type == "path_independent" or payoff_type == "path_dependent", "Typo??"
         self.default_type = "polynomial"
         self.time_grid = underlying_instance.time_grid_instance.get_time_grid(self.n_steps)
         self.__regression_types = {
@@ -37,11 +38,20 @@ class LongstaffSchwartzMonteCarlo:
         self.value_0 = None
         self.rmse = None
         self.v0_var = None
-        pass
 
-    def reset(self):
-        self.underlying_instance.reset()
-        self.__init__(self.underlying_instance, self.payoff, self.n_paths, self.n_steps)  # TODO: underlying_instance will be wrong
+    def payoff_wrapper(self, x: np.ndarray or float):
+        """
+        Input is a numpy array of asset price path until time point t.
+        The input is either a whole path or a single value. Note: When evaluating at t=0,
+        the input for pathdependent is also a single value.
+        :param x: np.array or float
+        """
+        if isinstance(x, float) or isinstance(x, int):
+            return self.payoff(x)
+        if self.payoff_type == "path_independent":
+            return self.payoff(x[-1])
+        if self.payoff_type == "path_dependent":
+            return self.payoff(x)
 
     def set_degree(self, degree: int) -> None:
         self.degree = degree
@@ -62,13 +72,16 @@ class LongstaffSchwartzMonteCarlo:
             assert len(self.underlying_instance.scenarios) == self.n_paths, "Number of paths must be equal to number of scenarios"
 
     def compute_option_price(self, return_type=False) -> np.array:
-        asset_price = np.zeros(shape=(len(self.underlying_instance.scenarios), self.n_steps))
+        asset_price = np.zeros(shape=(self.n_paths, self.n_steps))
         for key in self.underlying_instance.scenarios.keys():
-            # TODO: Control for stochastic volatility models here!!
-            asset_price[key] = self.underlying_instance.scenarios[key]
+            if self.underlying_instance.dimension == 2:
+                asset_price[key] = self.underlying_instance.scenarios[key][:, 0]
+            else:
+                asset_price[key] = self.underlying_instance.scenarios[key]
         value = np.zeros_like(asset_price)
-
-        value[:, -1] = self.payoff(asset_price[:, -1])
+        for path in range(self.n_paths):
+            value[path, -1] = self.payoff_wrapper(asset_price[path, :])
+        #value[:, -1] = self.payoff(asset_price[:, -1])
         for time_index in range(self.n_steps -2, -1, -1):
             dt = self.time_grid[time_index + 1] - self.time_grid[time_index]
             discount = np.exp(-self.underlying_instance.get_short_rate()*dt)
@@ -76,8 +89,11 @@ class LongstaffSchwartzMonteCarlo:
             reg = self.__regression_types[self.default_type](asset_price[:, time_index], value[:, time_index + 1] * discount, self.degree)
             continuation_value = self.__compute_cv(time_index, reg, asset_price)
             execise_value = np.zeros_like(asset_price[:, time_index])
+
+
             for j in range(self.n_paths):
-                execise_value[j] = self.payoff(asset_price[j, time_index])
+                underlying_until_t = asset_price[j, 0:time_index] if time_index > 0 else asset_price[:, 0]
+                execise_value[j] = self.payoff_wrapper(underlying_until_t)
             value[:, time_index] = (
                 np.where(execise_value > continuation_value, execise_value, value[:, time_index + 1] * discount))
 
