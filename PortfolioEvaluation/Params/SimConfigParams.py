@@ -10,14 +10,14 @@ class SimConfigParams:
         self.default_models_fallback = {
             "stock_option": "BlackScholes",
             "interest_rate": "TrolleSchwartz",
-            "foreign_exchange": "Heston"
+            "foreign_exchange": "HestonCIR"
         }
         self.default_models = None
 
     def from_dict(self, data):
         self.discretization = data.get('discretization', 100)
         self.n_paths = data.get('mc_steps', 1000)
-        self.use_constant_interest_rate = data.get('use_constant_interest_rate', False)
+        self.use_constant_interest_rate = data.get('use_constant_interest_rate', True)
         self.reference_yield_curve = data.get('reference_yield_curve')
         self.default_models = data.get('default_models', self.default_models_fallback)
 

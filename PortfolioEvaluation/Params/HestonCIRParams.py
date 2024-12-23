@@ -15,7 +15,7 @@ class HestonCIRParams(AbstractModelParams):
     def from_dict(self, data):
         self.r = data.get('r')
         self.sigma = data.get('sigma')
-        self.s0 = data.get('s0')
+        self.starting_point = data.get('s0')
         self.v0 = data.get('v0')
         self.t_start = data.get('t_start')
         self.t_end = data.get('t_end')

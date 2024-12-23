@@ -16,7 +16,7 @@ class BlackScholesParams(AbstractModelParams):
         # This classes should not have a from dict command (I guess)
         self.r = data.get('r')
         self.sigma = data.get('sigma')
-        self.s0 = data.get('s0')
+        self.starting_point = data.get('s0')
         self.t_start = data.get('t_start')
         self.t_end = data.get('t_end')
 

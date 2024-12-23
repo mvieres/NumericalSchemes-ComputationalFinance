@@ -20,7 +20,8 @@ class SimulationKernel:
         self.job_request = None
         self.models = {
             "BlackScholes": BlackScholes(0, 1, 1, 0, 0, 'euler', 'exposure'),
-            "Heston": HestonCIR(0, 1, 1, 0.1, 0, 1, 1, 1, 0.5, 'absolute_euler')
+            "Heston": HestonCIR(0, 1, 1, 0.1, 0, 1, 1, 1, 0.5, 'absolute_euler'),
+            "interest_rate": TrolleSchwartz(0, 1, 1, 0.1, 0, 1, 1, 1, 0.5, -0.3,'absolute_euler')
         }
 
     def set_job_request(self, job_request):
@@ -32,22 +33,28 @@ class SimulationKernel:
     def run(self):
         assert self.job_request is not None, "Job request is not set"
         model = self.job_request.get('model')
-        sim_params = self.job_request["simulation_params"]
+        sim_params_model = self.job_request["simulation_params"]["underlying"]
+        sim_params_interest = self.job_request["simulation_params"]["interest_rate"]
         trade_params = self.job_request["trade_params"]
         category = trade_params.get_category()
         model_instance = self.models.get(model)
-        model_instance.pull_params(sim_params)  # This is very (!!!!) important otherwise the simulation runs with wrong parameters
+        model_instance.pull_params(sim_params_model)  # This is very (!!!!) important otherwise the simulation runs with wrong parameters
         model_instance.generate_scenarios(self.general_sim_params.get_n_paths(), self.general_sim_params.get_discretization())
-
+        # For non-constant interest rates, generate scenarios for the interest rate
+        interest_instance = None
+        if not self.general_sim_params.get_use_constant_interest_rate():
+            interest_instance = self.models.get("interest_rate")  # For interest rate we use TrolleSchwartz at the moment
+            interest_instance.pull_params(sim_params_interest)  # Here we need to get the right params for correct interest rate curve
         if category == "stock_option":
-            self.__process_stock_option(model_instance, model, sim_params, trade_params)
+            self.__process_stock_option(model_instance, model, interest_instance, sim_params_model, trade_params)
         if trade_params.get_quantity() is not None:
             self.value = trade_params.get_quantity() * self.value
 
-    def __process_stock_option(self, model_instance, model, sim_params, trade_params):
+    def __process_stock_option(self, model_instance, model, interest_instance, sim_params, trade_params):
         if model == "BlackScholes" and trade_params.get_exercise() == "european":
-            tp_instance = BlackScholesOptionPrices(sim_params.t_start,
-                                                   sim_params.t_end, sim_params.s0, sim_params.r, sim_params.sigma)
+            tp_instance = BlackScholesOptionPrices(sim_params.get_t_start(),
+                                                   sim_params.get_t_end(), sim_params.get_starting_point(),
+                                                   sim_params.get_r(), sim_params.get_sigma())
             if trade_params.get_type() == "put":
                 self.value = tp_instance.put_option_theoretical_price(trade_params.get_strike())
             elif trade_params.get_type() == "call":

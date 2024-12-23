@@ -2,6 +2,7 @@ import numpy as np
 
 from Market.AbstractMarket import AbstractMarket
 from NumericalSchemes.SdeSolver import SdeSolver
+from PortfolioEvaluation.Params.TrolleSchwartzParams import TrolleSchwartzParams
 
 
 class TrolleSchwartz(AbstractMarket):
@@ -53,3 +54,62 @@ class TrolleSchwartz(AbstractMarket):
     def generate_scenarios(self, n_paths: int, n_steps: int) -> None:
         for i in range(n_paths):
             self.scenarios[i] = self.compute_solution_path(n_steps)
+
+    def set_alpha_0(self, alpha_0: float):
+        self.alpha_0 = alpha_0
+
+    def set_alpha_1(self, alpha_1: float):
+        self.alpha_1 = alpha_1
+
+    def set_gamma(self, gamma: float):
+        self.gamma = gamma
+
+    def set_kappa(self, kappa: float):
+        self.kappa = kappa
+
+    def set_theta(self, theta: float):
+        self.theta = theta
+
+    def set_sigma(self, sigma: float):
+        self.sigma = sigma
+
+    def set_rho(self, rho: float):
+        self.rho = rho
+
+    def set_v0(self, v0: float):
+        self.v0 = v0
+
+    def get_alpha_0(self):
+        return self.alpha_0
+
+    def get_alpha_1(self):
+        return self.alpha_1
+
+    def get_gamma(self):
+        return self.gamma
+
+    def get_kappa(self):
+        return self.kappa
+
+    def get_theta(self):
+        return self.theta
+
+    def get_sigma(self):
+        return self.sigma
+
+    def get_rho(self):
+        return self.rho
+
+    def get_v0(self):
+        return self.v0
+
+    def pull_params(self, params: TrolleSchwartzParams):
+        self.set_alpha_0(params.get_alpha_0())
+        self.set_alpha_1(params.get_alpha_1())
+        self.set_gamma(params.get_gamma())
+        self.set_kappa(params.get_kappa())
+        self.set_theta(params.get_theta())
+        self.set_sigma(params.get_sigma())
+        self.set_rho(params.get_rho())
+        self.set_v0(params.get_v0())
+        self.set_r(params.get_starting_point())

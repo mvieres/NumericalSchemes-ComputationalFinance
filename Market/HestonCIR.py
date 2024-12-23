@@ -49,7 +49,7 @@ class HestonCIR(AbstractMarket):
      #   super().plot_underlying()
 
     def pull_params(self, params: HestonCIRParams):
-        super().s0 = params.get_s0()
+        super().s0 = params.get_starting_point()
         self.v0 = params.get_v0()
         super().r = params.get_r()
         self.kappa = params.get_kappa()

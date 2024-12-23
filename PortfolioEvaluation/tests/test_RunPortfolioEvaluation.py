@@ -40,7 +40,7 @@ class RunPortfolioEvaluationTest(unittest.TestCase):
                               'notional_currency': 'USD', 'quantity': 1, 'strike': 100, 'type': 'put'}}]
         runner_instance.trades = input_list
         runner_instance.read_portfolio()
-        runner_instance.get_params()
+        runner_instance.convert_params()
         for trade in runner_instance.trades:
             self.assertTrue(isinstance(trade['stock_option'], StockOptionParams))
 

@@ -7,8 +7,9 @@ class SimulationKernelTest(unittest.TestCase):
 
     def test_init(self):
         # TODO:
+        #job_request =
         #simulation_kernel = SimulationKernel()
-        #self.assertEqual(simulation_kernel.job_request, None)
+        self.assertEqual(simulation_kernel.job_request, None)
         pass
 
 

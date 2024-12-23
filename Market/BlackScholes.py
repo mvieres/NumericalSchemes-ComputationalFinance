@@ -68,7 +68,6 @@ class BlackScholes(AbstractMarket):
     def pull_params(self, params: BlackScholesParams):
         self.set_r(params.get_r())
         self.set_sigma(params.get_sigma())
-        self.set_s0(params.get_s0())
+        self.set_s0(params.get_starting_point())
         self.set_t_start(params.get_t_start())
         self.set_t_end(params.get_t_end())
-        pass

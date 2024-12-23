@@ -3,17 +3,20 @@ import mysql.connector
 from mysql.connector import Error as mysqlError
 from datetime import date, datetime
 from webbrowser import Error  # TODO: is this the right error category for fetching data from mysql?
-
 from logging import error, ERROR
 
 from MarketDataContainer.MkdContainer import MkdContainer
+from PortfolioEvaluation.Params.AbstractModelParams import AbstractModelParams
 from PortfolioEvaluation.Params.BlackScholesParams import BlackScholesParams
 from PortfolioEvaluation.Params.HestonCIRParams import HestonCIRParams
+from PortfolioEvaluation.Params.HestonCKLSParams import HestonCKLSParams
 from PortfolioEvaluation.Params.SimConfigParams import SimConfigParams
 from PortfolioEvaluation.Params.StockOptionParams import StockOptionParams
 from PortfolioEvaluation.Params.TrolleSchwartzParams import TrolleSchwartzParams
 from PortfolioEvaluation.PortfolioParams import PortfolioParams
 from PortfolioEvaluation.SimulationKernel import SimulationKernel
+
+#import spepper
 
 
 class RunPortfolioEvaluation:
@@ -51,7 +54,7 @@ class RunPortfolioEvaluation:
 
     def run(self):
         self.read_portfolio()
-        self.get_params()
+        self.convert_params()
         self.process_params()
         self.run_simulation()
         self.aggregate_results()
@@ -77,10 +80,15 @@ class RunPortfolioEvaluation:
         except Exception as e:
             print(f"Default parameters could not be loaded due to Error: {e}")
 
+        # establish database connection for model parameters
+        if self.db_status is None:
+            self.db, self.db_status = self.connect_to_database(self.db_params)
 
-    def get_params(self):
+    def convert_params(self):
         """
-        This method should be the end of the business layer
+        This method should be the end of the business layer,
+        i.e. all dicts from the json should be converted to class instances
+        This method also extracts the underlying and currency names for the market data container / database query
         """
         self.sim_config_params.from_dict(self.portfolio_params.get_simulation_config())
         self.trades = self.portfolio_params.get_trades()
@@ -98,6 +106,17 @@ class RunPortfolioEvaluation:
             else:
                 error("entry with id"+f"{id}"+"in trades did not process the right param class")
 
+    def process_params(self):
+        """
+        This should be the connection between business layer and workforce
+
+        This function should analyze the trades and create a config such that each trades know which model to use and it's parameters
+        TODO: Implement the above (blocked by database params mapping / calibration implementation)
+
+        For now we take a fixed model for each asset class / trade type, e.g. BlackScholes for stock options and get some default parameters
+
+        """
+
         # Get Fx names
         reference_curr = self.sim_config_params.get_reference_yield_curve()
         required_fx = [currency + "_" + reference_curr for currency in self.currency_list]
@@ -112,24 +131,13 @@ class RunPortfolioEvaluation:
             self.mkd_container.load()
         except Exception as e:
             error(f"Market data could not be loaded: {e}")
-        # establish database connection for model parameters
-        if self.db_status is None:
-            self.db, self.db_status = self.connect_to_database(self.db_params)
 
-    def process_params(self):
-        """
-        This should be the connection between business layer and workforce
 
-        This function should analyze the trades and create a config such that each trades know which model to use and it's parameters
-        TODO: Implement the above (blocked by database params mapping / calibration implementation)
-
-        For now we take a fixed model for each asset class / trade type, e.g. BlackScholes for stock options and get some default parameters
-
-        """
+        # get fallback models for the case of no database connection
         default_models_as_str = self.sim_config_params.get_default_models()
         default_models_as_class = self.process_default_models(default_models_as_str)  # This converts the model from sting to a class object
         # Create new simulation object that has the classes
-        # Enforced structure self.job_requests = {"id": {"trade_params": self.trades, "simulation_params": {}}}
+        # Enforced structure self.job_requests = {"id": {"trade_params": self.trades, "simulation_params": {BlackScholesParams or else}}}
 
         for trade in self.trades:
             trade_category = list(trade.keys())[0]
@@ -137,7 +145,14 @@ class RunPortfolioEvaluation:
             id = trade_params.get_id()
             trade_params.set_category(trade_category)
             self.job_requests[id] = {self.trade_params_str: trade_params}
-            self.job_requests[id][self.simulation_params_str] = default_models_as_class.get(trade_category)  # Creates class instance for each trade, but class is empty
+            self.job_requests[id][self.simulation_params_str] = \
+                {"underlying": default_models_as_class.get(trade_category),
+                 "interest_rate":default_models_as_class.get("interest_rate") } # In this case, trade_category could be
+            # interest_rate. In this case we could
+            if trade_category == "interest_rate":
+                self.job_requests[id][self.simulation_params_str]["underlying"] = (
+                    self.job_requests[id][self.simulation_params_str]["interest_rate"])  #
+
             # Fill up simulation params
             self.job_requests[id] = self.fill_up_params(self.job_requests[id])
 
@@ -159,7 +174,8 @@ class RunPortfolioEvaluation:
         model_mapping = {
             "BlackScholes": BlackScholesParams,
             "TrolleSchwartz": TrolleSchwartzParams,
-            "Heston": HestonCIRParams
+            "HestonCIR": HestonCIRParams,
+            "HestonCKLS": HestonCKLSParams
         }
         default_models_as_class = {}
         for key, model_str in default_models_as_str.items():
@@ -167,6 +183,7 @@ class RunPortfolioEvaluation:
             if model_class:
                 default_models_as_class[key] = model_class()
             else:
+                # TODO: Error as this is called for model_class None and Heson -> Somewhere HEstonCir HestonCKLS is missing
                 error(f"{model_str} model was not able to be casted to a model param class")
         return default_models_as_class
 
@@ -174,53 +191,43 @@ class RunPortfolioEvaluation:
         """
         This function should convert the trade_dict to a class instance
         """
-        trade_category = trade_dict[self.trade_params_str].get_category()
+
         underlying_name = trade_dict[self.trade_params_str].underlying
         id = trade_dict[self.trade_params_str].get_id()
-        model = trade_dict[self.simulation_params_str].__class__.__name__.replace("Params", "")
+        model = trade_dict[self.simulation_params_str]['underlying'].__class__.__name__.replace("Params", "")
         trade_dict['model'] = model
-        sim_params = trade_dict[self.simulation_params_str]
-        assert isinstance(sim_params, BlackScholesParams) or isinstance(sim_params, HestonCIRParams), \
-            "Only BlackScholes and Heston implemented"
+        for type in ['underlying', 'interest_rate']:
+            sim_params = trade_dict[self.simulation_params_str][type]
+            assert isinstance(sim_params, BlackScholesParams) or isinstance(sim_params, HestonCIRParams) or isinstance(sim_params, TrolleSchwartzParams), "Only BlackScholes and Heston implemented"
 
-        # fetch parameters for simulation: try to get today + underlying. If not possible, use default without a date.
-        # If no database connection is available, use default parameters from json in the repository
-        db_result = None
-        if self.db_status:
-            query = f"SELECT * FROM model_params WHERE date = '{self.today}' AND underlying = '{underlying_name}'"
-            db_result = self.fetch_data(self.db, query)
-            if len(db_result) == 0 or self.has_null_values(db_result[0]):
-                print(f"No specific / enough parameters for trade {id} on date {self.today} found, switching to default")
-                query = "SELECT * FROM model_params WHERE underlying = 'Default'"
-                db_result = self.fetch_data(self.db, query)
+            # fetch parameters for simulation: try to get today + underlying. If not possible, use default without a date.
+            # If no database connection is available, use default parameters from json in the repository
+            db_result = self.fetch_params(underlying_name, model) # TODO not dependent on the for loop
 
-            if isinstance(db_result, list):
-                assert len(db_result) == 1, "Exactly one entry expected"
-                db_result = db_result[0]  # convert to dict
-        else:
-            db_result = self.default_params[model]
-
-        # Demo implementation for the case stock_option -> BlackScholes TODO
-        # Get the most genereal parameters: r, s0, t_start, t_end
-        sim_params.set_s0(self.mkd_container.get_latest_spot_price(trade_dict[self.trade_params_str].underlying))
-        end_date = trade_dict[self.trade_params_str].maturity  # TODO: correct for right times, i.e. today.toordinal() == 0
-        sim_params.set_t_start(0)
-        sim_params.set_t_end(self.convert_date(end_date).toordinal() - self.today.toordinal())
-        # Get the model specific parameters
-        sim_params.set_r(self.mkd_container.get_today_short_rate())
-        if model == "BlackScholes":
-            assert isinstance(sim_params, BlackScholesParams)
-            sim_params.set_sigma(self.mkd_container.get_implied_volatility(underlying_name))
-            # TODO: for now bs uses implied volatility
-        elif model == "Heston":
-            assert isinstance(sim_params, HestonCIRParams)
-            sim_params.set_sigma(db_result.get("hs_volvol"))
-            sim_params.set_kappa(db_result.get("hs_kappa"))
-            sim_params.set_theta(db_result.get("hs_theta"))
-            sim_params.set_rho(db_result.get("hs_rho"))
-            sim_params.set_v0(db_result.get("hs_v0"))  # This should be marked data
-        else:
-            error(f"Model {model} not implemented yet")
+            # Demo implementation for the case stock_option -> BlackScholes TODO
+            # Get the most genereal parameters: r, s0, t_start, t_end
+            sim_params.set_starting_point(self.mkd_container.get_latest_spot_price(trade_dict[self.trade_params_str].underlying))
+            end_date = trade_dict[self.trade_params_str].maturity  # TODO: correct for right times, i.e. today.toordinal() == 0
+            sim_params.set_t_start(0)
+            sim_params.set_t_end(self.convert_date(end_date).toordinal() - self.today.toordinal())
+            # Get the model specific parameters
+            sim_params.set_r(self.mkd_container.get_today_short_rate())
+            if model == "BlackScholes":
+                assert isinstance(sim_params, BlackScholesParams)
+                sim_params.set_sigma(self.mkd_container.get_implied_volatility(underlying_name))
+                # TODO: for now bs uses implied volatility
+            elif model == "Heston":
+                assert isinstance(sim_params, HestonCIRParams)
+                sim_params.set_sigma(db_result.get("hs_volvol"))
+                sim_params.set_kappa(db_result.get("hs_kappa"))
+                sim_params.set_theta(db_result.get("hs_theta"))
+                sim_params.set_rho(db_result.get("hs_rho"))
+                sim_params.set_v0(db_result.get("hs_v0"))  # This should be marked data
+            elif model == "TrolleSchwartz":
+                # TODO:
+                ImportError("TrolleSchwartz not implemented yet")
+            else:
+                error(f"Model {model} not implemented yet")
         return trade_dict
 
     @staticmethod
@@ -259,8 +266,25 @@ class RunPortfolioEvaluation:
                 print("An unknown error occurred.")
             return None, False
 
+    def fetch_params(self, underlying_name: str, model: str):
+        if self.db_status:  # TODO: this method part has to be tested via mocked database
+            query = f"SELECT * FROM model_params WHERE date = '{self.today}' AND underlying = '{underlying_name}'"
+            db_result = self.get_data_from_db(self.db, query)
+            if len(db_result) == 0 or self.has_null_values(db_result[0]):
+                print(
+                    f"No specific / enough parameters for trade {id} on date {self.today} found, switching to default from database")
+                query = "SELECT * FROM model_params WHERE underlying = 'Default'"
+                db_result = self.get_data_from_db(self.db, query)
+
+            if isinstance(db_result, list):
+                assert len(db_result) == 1, "Exactly one entry expected"
+                db_result = db_result[0]  # convert to dict
+        else:
+            print("No database connection available, switching to default parameters from repository-json")
+            db_result = self.default_params[model]
+        return db_result
     @staticmethod
-    def fetch_data(db, query: str):
+    def get_data_from_db(db, query: str):
         try:
             cursor = db.cursor(dictionary=True)
             cursor.execute(query)
