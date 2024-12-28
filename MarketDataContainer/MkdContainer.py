@@ -1,13 +1,13 @@
+from typing import Dict
 
 from MarketDataContainer.MkdWrapper import MkdWrapper
 
 
 class MkdContainer:
     """
+    MKdContainer is a class that gets an underlying list, currency list and fx list that should be loaded.
+    In addition, a reference currency yield curve can be set. For this currencies, all common time horizons are loaded.
 
-    This has to be implemented. For now, only the get_underlying_today method is needed.
-
-    Today means the date of the simulation, i.s system date.
 
     """
 
@@ -15,7 +15,8 @@ class MkdContainer:
         self.underlying_list = None
         self.market_data = {}
         self.currency_list = None
-        self.reference_yield_curve = None
+        reference_yield_curve_dict = Dict[float, float]
+        self.reference_yield_curve: reference_yield_curve_dict = {}
         self.reference_yield_curve_name = None
         self.short_rate = None
 

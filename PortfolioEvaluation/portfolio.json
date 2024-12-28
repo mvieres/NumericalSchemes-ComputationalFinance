@@ -36,10 +36,6 @@
     }
   ],
   "simulation_config": {
-    "default_models": {
-      "stock_option": "BlackScholes",
-      "interest_rate": "TrolleSchwartz"
-    },
     "reference_yield_curve": "USD",
     "use_constant_interest_rate": false,
     "mc_steps": 1000,

@@ -54,20 +54,24 @@ class RunPortfolioEvaluation:
 
     def run(self):
         self.read_portfolio()
+        self.validate_portfolio()
+        self.setup_functionality()
         self.convert_params()
         self.process_params()
         self.run_simulation()
         self.aggregate_results()
 
     def read_portfolio(self):
-        with open(self.portfolio_str, 'r') as file:
-            data = json.load(file)
-        self.portfolio_params.from_dict(data)
+        try:
+            with open(self.portfolio_str, 'r') as file:
+                data = json.load(file)
+            self.portfolio_params.from_dict(data)
+        except Exception as e:
+            ERROR(f"Portfolio could not be loaded due to Error: {e}")
         # TODO: Implement check for required fields.
-        # get database params
         try:
             with open("C:/Users/pkv4e/Documents/db_params.json", 'r') as file:
-                self.db_params = json.load(file)
+                self.db_params = json.load(file)  # get database params
         except Exception as e:
             self.db_status = False
             print(f"Database params could not be loaded due to Error: {e}, continuing without database")
@@ -83,6 +87,14 @@ class RunPortfolioEvaluation:
         # establish database connection for model parameters
         if self.db_status is None:
             self.db, self.db_status = self.connect_to_database(self.db_params)
+
+    def validate_portfolio(self):
+        # TODO: Implement validation of the portfolio json
+        pass
+
+    def setup_functionality(self):
+
+        pass
 
     def convert_params(self):
         """

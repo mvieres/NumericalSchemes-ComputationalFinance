@@ -3,6 +3,7 @@ from datetime import datetime, timedelta
 import yfinance as yf
 import pandas as pd
 
+
 class MkdWrapper:
     """
     TODO: make sense of this class
