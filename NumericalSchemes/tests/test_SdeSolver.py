@@ -104,5 +104,6 @@ class SdeSolverTest(unittest.TestCase):
         self.assertAlmostEqual(theoeretical_mean, empirical_mean, delta=0.01)
         self.assertAlmostEqual(theoeretical_var, empirical_var, delta=0.01)
 
+
 if __name__ == '__main__':
     unittest.main()

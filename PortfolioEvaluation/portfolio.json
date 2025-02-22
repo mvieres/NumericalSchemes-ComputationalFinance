@@ -12,16 +12,16 @@
         "quantity": 1
         }
     },{
-        "stock_option": {
-          "id": 1112,
-          "underlying": "NVDA",
-          "type": "put",
-          "exercise": "european",
-          "notional_currency": "USD",
-          "strike": 100,
-          "maturity": "2024-12-10",
-          "quantity": 1
-        }
+      "stock_option": {
+        "id": 1112,
+        "underlying": "NVDA",
+        "type": "put",
+        "exercise": "european",
+        "notional_currency": "USD",
+        "strike": 100,
+        "maturity": "2025-12-10",
+        "quantity": 1
+      }
     },{
       "stock_option": {
         "id": 1113,
@@ -30,8 +30,13 @@
         "exercise": "european",
         "notional_currency": "USD",
         "strike": 100,
-        "maturity": "2024-12-10",
-        "quantity": 1
+        "maturity": "2025-12-10",
+        "quantity": 1,
+        "models": {
+          "stock_option": "HestonCIR",
+          "interest_rate": "CIR",
+          "foreign_exchange": "HestonCIR"
+        }
       }
     }
   ],

@@ -8,7 +8,7 @@ class AbstractMarket:
     This class assumes a constant risk-free return rate of the money market account at first.
     For the given timegrid, the risk-free rate can be evaluated at tenor points. TODO: This is not yet implemented
     """
-    def __init__(self, t_start: float, t_end: float, s0: float, r: float or None):
+    def __init__(self, t_start: float, t_end: float, s0: float):
         """
         :param t_start: float, start time
         :param t_end: float, end time
@@ -16,20 +16,17 @@ class AbstractMarket:
         :param r: float, risk-free rate, this will be the constant risk-free return rate of the money market account
         """
         assert t_start < t_end, "Start time must be less than end time"
-        assert s0 > 0, "Initial stock price must be positive"
-        assert r >= 0, "Risk-free rate must be non negative"
-        assert s0 > 0, "Initial stock price must be positive"
+        assert s0 > 0, "Initial spot price must be positive"
         self.t_start = t_start
         self.t_end = t_end
         self.time_grid_instance = TimeGrid(t_start, t_end)
         self.s0 = s0
-        self.r = r  # TODO: this use of short rate can get very difficult to handle if the short rate is initilaized with 0, which it is at some places.
-        self.underlying = {}
+        self.scenarios = {}
         self.dimension = None
 
     def reset(self):
         """Reset instance to initial values"""
-        self.__init__(self.t_start, self.t_end, self.s0, self.r)
+        self.__init__(self.t_start, self.t_end, self.s0)
 
     def get_short_rate(self):
         return self.r
@@ -40,6 +37,12 @@ class AbstractMarket:
     def generate_scenarios(self, n_paths: int, n_steps: int) -> None:
         pass
 
+    def get_scenarios(self):
+        return self.scenarios
+
+    def get_scenario(self, key: int):
+        return self.scenarios[key]
+
     def pull_params(self, params):
         pass
 
@@ -47,17 +50,17 @@ class AbstractMarket:
         """
         Plot the underlying asset, for stochastic volatility models, the volatility is NOT plotted
         """
-        keys_underlying = self.underlying.keys()
-        time_grid = self.time_grid_instance.get_time_grid(len(self.underlying[list(keys_underlying)[0]]))
+        keys_underlying = self.scenarios.keys()
+        time_grid = self.time_grid_instance.get_time_grid(len(self.scenarios[list(keys_underlying)[0]]))
 
         if self.dimension == 1:
             for key in keys_underlying:
-                plt.plot(time_grid, self.underlying[key], label=key)
+                plt.plot(time_grid, self.scenarios[key], label=key)
         elif self.dimension == 2:
             for key in keys_underlying:
                 spot = np.zeros(len(time_grid))
                 for i in range(len(time_grid)):
-                    spot[i] = self.underlying[key][i][0]
+                    spot[i] = self.scenarios[key][i][0]
                 plt.plot(time_grid, list(spot), label=key)
         else:
             raise ValueError("Something went wrong with the implementation")

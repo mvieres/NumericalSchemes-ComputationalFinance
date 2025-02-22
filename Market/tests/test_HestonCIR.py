@@ -36,9 +36,9 @@ class HestonCIRTest(unittest.TestCase):
         rho = 0.2
         scheme = "absolute_euler"
         heston_instance = HestonCIR(t_start, t_end, s0, v0, r, kappa, theta, sigma, rho, scheme)
-        heston_instance.underlying[1] = heston_instance.compute_solution_path_old(1000)
-        plt.plot(heston_instance.time_grid_instance.get_time_grid(1000), heston_instance.underlying[1][:, 0])
-        plt.plot(heston_instance.time_grid_instance.get_time_grid(1000), heston_instance.underlying[1][:, 1])
+        heston_instance.scenarios[1] = heston_instance.compute_solution_path_old(1000)
+        plt.plot(heston_instance.time_grid_instance.get_time_grid(1000), heston_instance.scenarios[1][:, 0])
+        plt.plot(heston_instance.time_grid_instance.get_time_grid(1000), heston_instance.scenarios[1][:, 1])
         plt.legend(["Spot", "Volatility"])
         plt.xlabel("Time")
         plt.ylabel("Price / Volatility")

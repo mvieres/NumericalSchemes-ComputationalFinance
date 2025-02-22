@@ -15,7 +15,6 @@ class HestonCKLS(HestonCIR):
         self.diffusion_s = lambda t, x: self.sigma * np.sqrt(x[1])
         self.drift_v = lambda t, x: self.kappa * (self.theta - x)
         self.diffusion_v = lambda t, x: self.sigma * x**self.gamma
-        self.underlying = self.scenarios
         self.dimension = 2
 
     def compute_solution_path(self, n_steps: int, bm_path=None) -> np.array:
@@ -34,8 +33,6 @@ class HestonCKLS(HestonCIR):
                         self.diffusion_s(self.time_grid_instance.get_time_grid(n_steps)[i - 1], sol[i - 1]) * delta_bm[0] + \
                         self.diffusion_s(self.time_grid_instance.get_time_grid(n_steps)[i - 1], sol[i - 1]) * delta_bm[1]
         return sol
-
-
 
     def pull_params(self, params: HestonCKLSParams):
         super().pull_params(params)

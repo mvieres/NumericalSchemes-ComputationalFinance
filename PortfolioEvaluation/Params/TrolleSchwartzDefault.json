@@ -1,0 +1,9 @@
+{
+  "kappa": 0.5,
+  "theta": 0.1,
+  "sigma": 0.1,
+  "rho": 0.1,
+  "alpha0": 0.1,
+  "alpha1": 0.1,
+  "gamma": 0.1
+}

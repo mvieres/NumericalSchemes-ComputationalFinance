@@ -33,6 +33,8 @@ class SdeSolver:
         self.starting_point = starting_point
         self.dimension = self.get_dimension(starting_point)
         self.order_dimensions = order_dimensions
+        self.change_drift_diffusion = None
+        self.data_for_change = None
         if order_dimensions is not None:
             assert isinstance(order_dimensions, list), "Order dimensions must be a list"
         else:
@@ -44,6 +46,18 @@ class SdeSolver:
         else:
             raise ValueError("Input error: Drift and diffusion have to be either callable or dict")
         pass
+
+    def set_change_drift_diffusion(self, change_drift_diffusion: bool, data_for_change) -> None:
+        self.change_drift_diffusion = change_drift_diffusion
+        # To perform the change of drift / diffusion, we need to have that data_for_change has the right size upon call
+        # for computation. This has to be checked at the specific call w.r.t. n_steps
+        self.data_for_change = data_for_change
+
+    def set_drift(self, drift: callable or dict) -> None:
+        self.drift = drift
+
+    def set_diffusion(self, diffusion: callable or dict) -> None:
+        self.diffusion = diffusion
 
     def set_random_seed(self, seed: int) -> None:
         self.seed = seed
@@ -88,7 +102,7 @@ class SdeSolver:
         x[0] = starting_point
         return time_grid, bm_path, x
 
-    def euler_1d(self,n_steps, time_grid, bm_path, x):
+    def euler_1d(self, n_steps, time_grid, bm_path, x):
         for i in range(1, n_steps):
             x[i] = (x[i - 1] + self.drift(time_grid[i - 1], x[i - 1]) * (time_grid[i] - time_grid[i - 1])
                     + self.diffusion(time_grid[i - 1], x[i - 1]) * (bm_path[i] - bm_path[i - 1]))
@@ -121,9 +135,19 @@ class SdeSolver:
         return x
 
     def absolut_euler_1d(self, n_steps, time_grid, bm_path, x):
+        if self.change_drift_diffusion:
+            assert self.data_for_change is not None, "Data for change has to be supplied"
+            assert self.data_for_change.shape[0] == n_steps, "Data for change has to have the same size as n_steps"
+
         for i in range(1, n_steps):
-            x[i] = np.abs(x[i - 1] + self.drift(time_grid[i - 1], x[i - 1]) * (time_grid[i] - time_grid[i - 1])
-                    + self.diffusion(time_grid[i - 1], x[i - 1]) * (bm_path[i] - bm_path[i - 1]))
+            if self.change_drift_diffusion:
+                drift = self.drift(time_grid[i - 1], x[i - 1], self.data_for_change[i - 1])
+                diffusion = self.diffusion(time_grid[i - 1], x[i - 1], self.data_for_change[i - 1])
+            else:
+                drift = self.drift(time_grid[i - 1], x[i - 1])
+                diffusion = self.diffusion(time_grid[i - 1], x[i - 1])
+            x[i] = np.abs(x[i - 1] + drift * (time_grid[i] - time_grid[i - 1])
+                          + diffusion * (bm_path[i] - bm_path[i - 1]))
         return x
 
     def absolute_euler_multi_d(self, n_steps, time_grid, bm_path, x):

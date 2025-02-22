@@ -1,4 +1,5 @@
 from PortfolioEvaluation.Params.AbstractModelParams import AbstractModelParams
+from Utility.ModelEnum import ModelEnum as me
 
 
 class HestonCIRParams(AbstractModelParams):
@@ -11,6 +12,9 @@ class HestonCIRParams(AbstractModelParams):
         self.kappa = None
         self.theta = None
         self.rho = None
+
+    def get_model_name(self):
+        return me.HestonCir.value
 
     def from_dict(self, data):
         self.r = data.get('r')
@@ -58,3 +62,14 @@ class HestonCIRParams(AbstractModelParams):
 
     def get_rho(self):
         return self.rho
+
+    def set_params(self, t_start, t_end, starting_point, v0, r, sigma, kappa, theta, rho):
+        self.t_start = t_start
+        self.t_end = t_end
+        self.starting_point = starting_point
+        self.r = r
+        self.sigma = sigma
+        self.v0 = v0
+        self.kappa = kappa
+        self.theta = theta
+        self.rho = rho

@@ -5,9 +5,10 @@ class StockOptionParams(AbstractTradeParams):
 
     def __init__(self):
         super().__init__()
+        self.category = "stock_option"
         self.type = None
         self.exercise = None
-        self.notoinal_currency = None
+        self.notional_currency = None
         self.strike = None
         self.maturity = None
 
@@ -15,7 +16,7 @@ class StockOptionParams(AbstractTradeParams):
         super().from_dict(data)
         self.type = data.get('type')
         self.exercise = data.get('exercise')
-        self.notoinal_currency = data.get('notoinal_currency', "USD")
+        self.notional_currency = data.get('notional_currency', "USD")
         self.strike = data.get('strike')
         self.maturity = data.get('maturity')
 
@@ -25,8 +26,8 @@ class StockOptionParams(AbstractTradeParams):
     def set_exercise(self, exercise):
         self.exercise = exercise
 
-    def set_notoinal_currency(self, notoinal_currency):
-        self.notoinal_currency = notoinal_currency
+    def set_notional_currency(self, notional_currency):
+        self.notional_currency = notional_currency
 
     def set_strike(self, strike):
         self.strike = strike
@@ -40,11 +41,14 @@ class StockOptionParams(AbstractTradeParams):
     def get_exercise(self):
         return self.exercise
 
-    def get_notoinal_currency(self):
-        return self.notoinal_currency
+    def get_notional_currency(self):
+        return self.notional_currency
 
     def get_strike(self):
         return self.strike
 
     def get_maturity(self):
         return self.maturity
+
+    def get_category(self):
+        return self.category

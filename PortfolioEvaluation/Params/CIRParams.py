@@ -1,5 +1,5 @@
 from PortfolioEvaluation.Params.AbstractModelParams import AbstractModelParams
-
+from Utility.ModelEnum import ModelEnum as me
 
 class CIRParams(AbstractModelParams):
 
@@ -8,6 +8,9 @@ class CIRParams(AbstractModelParams):
         self.theta = None
         self.kappa = None
         self.sigma = None
+
+    def get_model_name(self):
+        return me.Cir.value
 
     def from_dict(self, data):
         self.set_theta(data.get('theta'))
@@ -34,3 +37,11 @@ class CIRParams(AbstractModelParams):
 
     def get_sigma(self):
         return self.sigma
+
+    def set_params(self, t_start, t_end, starting_point, kappa, theta, sigma):
+        self.set_t_start(t_start)
+        self.set_t_end(t_end)
+        self.set_starting_point(starting_point)
+        self.set_theta(theta)
+        self.set_kappa(kappa)
+        self.set_sigma(sigma)

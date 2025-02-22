@@ -14,6 +14,9 @@ class TrolleSchwartzParams(AbstractModelParams):
         self.__rho = None
         self.__v0 = None
 
+    def get_model_name(self):
+        return "TrolleSchwartz"
+
     def set_alpha_0(self, alpha_0: float):
         self.__alpha_0 = alpha_0
 

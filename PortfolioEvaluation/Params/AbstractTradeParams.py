@@ -3,15 +3,16 @@
 class AbstractTradeParams:
 
     def __init__(self):
-        self.category = None
         self.underlying = None
         self.id = None
         self.quantity = None
+        self.models = None
 
     def from_dict(self, data):
         self.id = data.get("id")
         self.underlying = data.get("underlying")
         self.quantity = data.get("quantity", 1)
+        self.models = data.get("models", None)
 
     def get_id(self):
         return self.id
@@ -25,8 +26,11 @@ class AbstractTradeParams:
     def set_quantity(self, quantity):
         self.quantity = quantity
 
-    def set_category(self, category):
-        self.category = category
+    def get_underlying(self):
+        return self.underlying
 
-    def get_category(self):
-        return self.category
+    def get_models(self):
+        return self.models
+
+    def set_models(self, model):
+        self.models = model

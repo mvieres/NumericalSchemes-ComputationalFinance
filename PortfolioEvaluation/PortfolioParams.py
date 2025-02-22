@@ -1,7 +1,10 @@
 
 
 class PortfolioParams:
+    """
+    TODO: This class is somewhat not useful at the moment.
 
+    """
     def __init__(self):
         self.simulation_config = None
         self.trades = None

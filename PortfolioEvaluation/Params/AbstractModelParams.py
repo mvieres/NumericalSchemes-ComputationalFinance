@@ -7,6 +7,9 @@ class AbstractModelParams:
         self.t_end = None
         self.starting_point = None
 
+    def get_model_name(self):
+        return NotImplementedError("Method get_name() has to be implemented in subclass")
+
     def get_t_start(self):
         return self.t_start
 

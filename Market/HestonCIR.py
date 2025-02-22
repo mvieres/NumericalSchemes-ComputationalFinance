@@ -7,8 +7,8 @@ from PortfolioEvaluation.Params.HestonCIRParams import HestonCIRParams
 
 class HestonCIR(AbstractMarket):
     """Simulation of Heston-CIR model (stochastic volatility model)"""
-    def __init__(self, t_start: float, t_end: float, s0: float, v0: float,r: float, kappa: float, theta: float, sigma: float, rho: float, scheme: str):
-        super().__init__(t_start, t_end, s0, r)
+    def __init__(self, t_start: float, t_end: float, s0: float, v0: float, r: float, kappa: float, theta: float, sigma: float, rho: float, scheme: str):
+        super().__init__(t_start, t_end, s0)
         self.dimension = 2
         assert v0 > 0, "Initial volatility must be positive"
         self.v0 = v0
@@ -19,7 +19,6 @@ class HestonCIR(AbstractMarket):
         assert sigma >= 0, "Volatility of volatility must be non negative"
         self.sigma = sigma
         self.fellerCondition = self.check_fellercondition()
-        self.scenarios = self.underlying
         self.scheme = scheme
         assert -1 <= rho <= 1, "Correlation coefficient must be between -1 and 1"
         self.rho = rho

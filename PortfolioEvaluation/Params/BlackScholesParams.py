@@ -1,4 +1,5 @@
 from PortfolioEvaluation.Params.AbstractModelParams import AbstractModelParams
+from Utility.ModelEnum import ModelEnum as me
 
 
 class BlackScholesParams(AbstractModelParams):
@@ -20,6 +21,9 @@ class BlackScholesParams(AbstractModelParams):
         self.t_start = data.get('t_start')
         self.t_end = data.get('t_end')
 
+    def get_model_name(self):
+        return me.BlackScholes.value
+
     def set_r(self, r):
         self.r = r
 
@@ -31,3 +35,10 @@ class BlackScholesParams(AbstractModelParams):
 
     def get_sigma(self):
         return self.sigma
+
+    def set_params(self, t_start, t_end, starting_point, r, sigma):
+        self.t_start = t_start
+        self.t_end = t_end
+        self.starting_point = starting_point
+        self.r = r
+        self.sigma = sigma

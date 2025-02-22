@@ -14,6 +14,7 @@ def date_to_float(input_date: str) -> float:
     # Convert the difference to a float
     return delta.total_seconds() / (24 * 3600)
 
+
 def convert_date(input_date: str) -> date:
     # Convert the input date string to a datetime object
     given_date = datetime.strptime(input_date, '%Y-%m-%d')

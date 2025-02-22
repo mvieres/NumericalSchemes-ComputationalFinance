@@ -1,6 +1,6 @@
 
 
-class SimConfigParams:
+class GeneralSimConfigParams:
 
     def __init__(self):
         self.discretization = None
@@ -9,8 +9,9 @@ class SimConfigParams:
         self.reference_yield_curve = None
         self.default_models_fallback = {
             "stock_option": "BlackScholes",
-            "interest_rate": "TrolleSchwartz",
-            "foreign_exchange": "HestonCIR"
+            "interest_rate": "CIR",
+            "foreign_exchange": "HestonCIR",
+            "forward_rates": "TrolleSchwartz"
         }
         self.default_models = None
 
@@ -18,7 +19,7 @@ class SimConfigParams:
         self.discretization = data.get('discretization', 100)
         self.n_paths = data.get('mc_steps', 1000)
         self.use_constant_interest_rate = data.get('use_constant_interest_rate', True)
-        self.reference_yield_curve = data.get('reference_yield_curve')
+        self.reference_yield_curve = data.get('reference_yield_curve', "USD")
         self.default_models = data.get('default_models', self.default_models_fallback)
 
     def set_discretization(self, discretization):

@@ -28,7 +28,7 @@ class RunPortfolioEvaluationTest(unittest.TestCase):
             "interest_rate": TrolleSchwartzParams(),
             "foreign_exchange": HestonCIRParams(),
         }
-        result = runner_instance.process_default_models(default_dict)
+        result = runner_instance.process_models(default_dict)
         for key in result.keys():
             self.assertTrue(isinstance(result[key], supposed_dict[key].__class__))
 
@@ -40,7 +40,7 @@ class RunPortfolioEvaluationTest(unittest.TestCase):
                               'notional_currency': 'USD', 'quantity': 1, 'strike': 100, 'type': 'put'}}]
         runner_instance.trades = input_list
         runner_instance.read_portfolio()
-        runner_instance.convert_params()
+        runner_instance.convert_portfolio()
         for trade in runner_instance.trades:
             self.assertTrue(isinstance(trade['stock_option'], StockOptionParams))
 

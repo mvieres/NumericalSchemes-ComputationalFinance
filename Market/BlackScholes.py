@@ -12,16 +12,15 @@ class BlackScholes(AbstractMarket):
 
 
     """
-    def __init__(self, t_start: float, t_end: float, s0: float, r: float, sigma: float, scheme: str = "euler", sim_type="normal"):
+    def __init__(self, t_start: float, t_end: float, s0: float, r: float or list, sigma: float, scheme: str = "euler", sim_type="normal"):
         self.t_start = t_start
         self.t_end = t_end
-        super().__init__(t_start, t_end, s0, r)
+        super().__init__(t_start, t_end, s0)
         self.s0 = s0
         self.dimension = 1
         assert sigma >= 0, "Volatility must be non negative"
         self.sigma = sigma
         self.scheme = scheme
-        self.scenarios = {}  # Stores different paths; i.e. one sample path = one scenario
         self.sim_type = sim_type
         if sim_type == "normal":
             self.drift = lambda t, x: r * x
@@ -32,7 +31,6 @@ class BlackScholes(AbstractMarket):
         self.solver_instance = SdeSolver(time_grid_instance=self.time_grid_instance,
                                          drift=self.drift, diffusion=self.diffusion, starting_point=s0)
         self.solver_instance.set_diffustion_derivative(self.diffusion_derivative)
-        self.underlying = self.scenarios  # TODO: this should be a pointer to the underlying of market class
         self.schemes = {
             "euler": self.solver_instance.euler,
             "absolute_euler": self.solver_instance.absolute_euler,
